@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "push-github": "bash scripts/push-github.sh",
+    "fetch-merge-github": "bash scripts/fetch-merge-github.sh"
   },
   "dependencies": {
     "next": "^15.3.2",
