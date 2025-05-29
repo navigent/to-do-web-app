@@ -90,3 +90,5 @@ temp/
 # yarn.lock
 # pnpm-lock.yaml
 /lib/generated/prisma
+
+/lib/generated/prisma
