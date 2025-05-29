@@ -19,3 +19,7 @@ pnpm-lock.yaml
 # Generated
 public/sw.js
 public/workbox-*.js
+
+# Tailwind CSS v4
+app/tailwind.css
+postcss.config.mjs
