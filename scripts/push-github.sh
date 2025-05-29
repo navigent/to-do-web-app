@@ -61,7 +61,7 @@ CURRENT_BRANCH=$(git branch --show-current)
 # Determine base branch based on type
 case $BRANCH_TYPE in
     feature|release)
-        BASE_BRANCH="develop"
+        BASE_BRANCH="dev"
         ;;
     hotfix)
         BASE_BRANCH="main"
@@ -90,7 +90,7 @@ fi
 # Create and switch to new branch if needed
 if [[ "$CURRENT_BRANCH" == "$BRANCH_NAME" ]]; then
     echo -e "${BLUE}Already on branch: $BRANCH_NAME${NC}"
-elif [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "develop" ]]; then
+elif [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "dev" ]]; then
     # Ensure we're on the correct base branch
     if [[ "$CURRENT_BRANCH" != "$BASE_BRANCH" ]]; then
         echo -e "${GREEN}Switching to base branch: $BASE_BRANCH${NC}"
@@ -125,7 +125,7 @@ git push -u origin "$BRANCH_NAME"
 # Determine PR target branch
 case $BRANCH_TYPE in
     feature|release)
-        PR_BASE="develop"
+        PR_BASE="dev"
         ;;
     hotfix)
         PR_BASE="$BASE_BRANCH"

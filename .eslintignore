@@ -1,0 +1,16 @@
+# Dependencies
+node_modules
+
+# Build outputs
+.next
+out
+build
+dist
+
+# Config files
+next.config.mjs
+*.config.js
+*.config.ts
+
+# Database
+prisma/migrations
