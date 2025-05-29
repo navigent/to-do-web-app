@@ -52,12 +52,12 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
   }
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="pb-4">
+    <Card className="w-full max-w-full sm:max-w-md">
+      <CardHeader className="pb-3 sm:pb-4">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg">{isEditing ? 'Edit Task' : 'Create New Task'}</CardTitle>
+          <CardTitle className="text-base sm:text-lg">{isEditing ? 'Edit Task' : 'Create New Task'}</CardTitle>
           {onCancel && (
-            <Button variant="ghost" size="sm" onClick={onCancel} className="h-8 w-8 p-0">
+            <Button variant="ghost" size="sm" onClick={onCancel} className="h-8 w-8 sm:h-9 sm:w-9 p-0">
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -65,7 +65,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
       </CardHeader>
 
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
           <div className="space-y-2">
             <label htmlFor="title" className="text-sm font-medium">
               Title *
@@ -89,7 +89,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Enter task description..."
-              className="w-full min-h-[80px] p-3 text-sm border border-input rounded-md bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full min-h-[60px] sm:min-h-[80px] p-2 sm:p-3 text-sm border border-input rounded-md bg-background resize-none focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isLoading}
             />
           </div>
@@ -149,8 +149,8 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
-            <Button type="submit" disabled={!isValid || isLoading} className="flex-1">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
+            <Button type="submit" disabled={!isValid || isLoading} className="w-full sm:flex-1">
               {isLoading ? 'Saving...' : isEditing ? 'Update Task' : 'Create Task'}
             </Button>
             {onCancel && (
@@ -159,7 +159,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
                 variant="outline"
                 onClick={onCancel}
                 disabled={isLoading}
-                className="flex-1"
+                className="w-full sm:flex-1"
               >
                 Cancel
               </Button>

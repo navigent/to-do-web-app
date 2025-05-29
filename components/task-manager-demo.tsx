@@ -206,7 +206,7 @@ export function TaskManagerDemo() {
 
   if (editingTask) {
     return (
-      <div className="container mx-auto p-6 max-w-2xl">
+      <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-2xl">
         <TaskForm
           task={editingTask}
           onSubmit={handleUpdateTask}
@@ -217,19 +217,19 @@ export function TaskManagerDemo() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="flex flex-col lg:flex-row gap-6">
+    <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
+      <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
         {/* Sidebar with filters and add button */}
-        <div className="lg:w-80 space-y-4">
+        <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
           <AddTaskButton onAddTask={handleAddTask} variant="card" />
           <TaskFilter filters={filters} onFiltersChange={setFilters} taskCounts={taskCounts} />
         </div>
 
         {/* Main content area */}
         <div className="flex-1">
-          <div className="mb-6">
-            <h1 className="text-2xl font-bold text-foreground mb-2">Tasks</h1>
-            <p className="text-muted-foreground">
+          <div className="mb-4 sm:mb-6">
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Tasks</h1>
+            <p className="text-sm sm:text-base text-muted-foreground">
               Showing {filteredTasks.length} of {tasks.length} tasks
             </p>
           </div>

@@ -23,10 +23,10 @@ export function TaskList({
 }: TaskListProps) {
   if (tasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <div className="rounded-full bg-muted p-6 mb-4">
+      <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+        <div className="rounded-full bg-muted p-4 sm:p-6 mb-3 sm:mb-4">
           <svg
-            className="h-12 w-12 text-muted-foreground"
+            className="h-10 w-10 sm:h-12 sm:w-12 text-muted-foreground"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -40,15 +40,15 @@ export function TaskList({
             />
           </svg>
         </div>
-        <h3 className="text-lg font-medium text-foreground mb-2">No tasks yet</h3>
-        <p className="text-muted-foreground max-w-sm">{emptyMessage}</p>
+        <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">No tasks yet</h3>
+        <p className="text-sm sm:text-base text-muted-foreground max-w-xs sm:max-w-sm px-4 sm:px-0">{emptyMessage}</p>
       </div>
     )
   }
 
   return (
     <div className={className}>
-      <div className="space-y-3">
+      <div className="space-y-2 sm:space-y-3">
         {tasks.map((task) => (
           <TaskCard
             key={task.id}
