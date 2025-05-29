@@ -15,7 +15,9 @@ import { AddTaskButton } from './add-task-button'
 import { TaskForm } from './task-form'
 import { ErrorBoundary } from './error-boundary'
 import { TaskListSkeleton } from './ui/loading-skeleton'
+import { EmptyState } from './ui/empty-state'
 import { useToast } from '@/hooks/use-toast'
+import { useEmptyState, useIsFirstTimeUser } from '@/hooks/use-empty-state'
 
 // Mock data for demonstration
 const mockTasks: Task[] = [
@@ -61,12 +63,31 @@ const mockTasks: Task[] = [
 ]
 
 export function TaskManagerDemo() {
-  const [tasks, setTasks] = useState<Task[]>(mockTasks)
+  // Check URL params for demo mode
+  const isEmptyDemo = typeof window !== 'undefined' && 
+    window.location.search.includes('demo=empty')
+  const isCompletedDemo = typeof window !== 'undefined' && 
+    window.location.search.includes('demo=completed')
+  
+  // Create completed tasks for demo
+  const completedMockTasks = mockTasks.map(task => ({
+    ...task,
+    status: 'COMPLETED' as const,
+    completedAt: new Date(),
+  }))
+  
+  const initialTasks = isEmptyDemo ? [] : 
+                      isCompletedDemo ? completedMockTasks : 
+                      mockTasks
+  
+  const [tasks, setTasks] = useState<Task[]>(initialTasks)
   const [filters, setFilters] = useState<TaskFilters>({})
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const [isInitialLoading, setIsInitialLoading] = useState(false)
+  const [showAddTaskForm, setShowAddTaskForm] = useState(false)
   const { toast } = useToast()
+  const isFirstTime = useIsFirstTimeUser()
 
   // Simulate async operations with loading states
   const setTaskLoading = (taskId: string, loading: boolean) => {
@@ -140,6 +161,24 @@ export function TaskManagerDemo() {
     }
   }, [tasks])
 
+  // Determine empty state
+  const emptyStateInfo = useEmptyState({
+    tasks,
+    filteredTasks,
+    filters,
+    isFirstTime,
+  })
+
+  // Clear filters handler
+  const handleClearFilters = () => {
+    setFilters({})
+  }
+
+  // Handle add task from empty state
+  const handleAddTaskFromEmpty = () => {
+    setShowAddTaskForm(true)
+  }
+
   const handleAddTask = async (data: CreateTaskData) => {
     try {
       await simulateNetworkDelay(600)
@@ -161,6 +200,7 @@ export function TaskManagerDemo() {
       }
       
       setTasks((prev) => [newTask, ...prev])
+      setShowAddTaskForm(false) // Close inline form
       toast({
         title: 'Task created',
         description: `"${data.title}" has been added to your tasks.`,
@@ -304,6 +344,39 @@ export function TaskManagerDemo() {
   return (
     <ErrorBoundary>
       <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
+        {/* Demo Controls */}
+        {typeof window !== 'undefined' && (
+          <div className="mb-4 p-3 bg-muted/50 rounded-lg border text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">
+                Demo Mode: {isEmptyDemo ? 'Empty State Testing' : 
+                          isCompletedDemo ? 'All Tasks Completed' : 
+                          'With Sample Tasks'}
+              </span>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => window.location.href = '?demo=normal'}
+                  className={`px-3 py-1 rounded text-xs ${!isEmptyDemo && !isCompletedDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                >
+                  Normal
+                </button>
+                <button
+                  onClick={() => window.location.href = '?demo=empty'}
+                  className={`px-3 py-1 rounded text-xs ${isEmptyDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                >
+                  Empty
+                </button>
+                <button
+                  onClick={() => window.location.href = '?demo=completed'}
+                  className={`px-3 py-1 rounded text-xs ${isCompletedDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
+                >
+                  Completed
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
           {/* Sidebar with filters and add button */}
           <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
@@ -325,13 +398,36 @@ export function TaskManagerDemo() {
             </div>
 
             <ErrorBoundary>
+              {/* Inline Add Task Form */}
+              {showAddTaskForm && (
+                <div className="mb-6">
+                  <TaskForm
+                    onSubmit={handleAddTask}
+                    onCancel={() => setShowAddTaskForm(false)}
+                  />
+                </div>
+              )}
+
               <TaskList
                 tasks={filteredTasks}
                 onStatusChange={handleStatusChange}
                 onEdit={setEditingTask}
                 onDelete={handleDeleteTask}
                 loadingStates={loadingStates}
-                emptyMessage="No tasks match your current filters. Try adjusting your search or filter criteria."
+                emptyComponent={
+                  emptyStateInfo && (
+                    <EmptyState
+                      variant={emptyStateInfo.variant}
+                      title={emptyStateInfo.title}
+                      description={emptyStateInfo.description}
+                      onAddTask={handleAddTaskFromEmpty}
+                      onClearFilters={handleClearFilters}
+                      filters={filters}
+                      searchTerm={emptyStateInfo.searchTerm}
+                      totalTasks={tasks.length}
+                    />
+                  )
+                }
               />
             </ErrorBoundary>
           </div>
