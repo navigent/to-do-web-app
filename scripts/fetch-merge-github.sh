@@ -37,17 +37,26 @@ fi
 echo -e "${GREEN}Fetching latest from origin...${NC}"
 git fetch origin main
 
+# Switch to main branch and pull latest
+echo -e "${GREEN}Switching to main branch to ensure latest state...${NC}"
+git checkout main
+git pull origin main
+
+# Switch back to the feature branch
+echo -e "${GREEN}Switching back to ${YELLOW}$CURRENT_BRANCH${GREEN}...${NC}"
+git checkout "$CURRENT_BRANCH"
+
 # Show what will be merged
 echo -e "${BLUE}Changes to be merged:${NC}"
-git log --oneline "$CURRENT_BRANCH"..origin/main
+git log --oneline "$CURRENT_BRANCH"..main
 
 # Check if there are any changes to merge
-if [ -z "$(git log --oneline "$CURRENT_BRANCH"..origin/main)" ]; then
+if [ -z "$(git log --oneline "$CURRENT_BRANCH"..main)" ]; then
     echo -e "${GREEN}✅ Already up to date with main!${NC}"
 else
     # Merge main into current branch
     echo -e "${GREEN}Merging ${YELLOW}main${GREEN} into ${YELLOW}$CURRENT_BRANCH${GREEN}...${NC}"
-    if git merge origin/main; then
+    if git merge main; then
         echo -e "${GREEN}✅ Merge successful!${NC}"
         
         # Push the merge
@@ -57,10 +66,6 @@ else
             echo -e "${GREEN}Pushing to origin...${NC}"
             git push origin "$CURRENT_BRANCH"
         fi
-        
-        # Switch back to main branch
-        echo -e "${GREEN}Switching back to main branch...${NC}"
-        git checkout main
     else
         echo -e "${RED}❌ Merge conflicts detected!${NC}"
         echo -e "${YELLOW}Please resolve conflicts and commit${NC}"
