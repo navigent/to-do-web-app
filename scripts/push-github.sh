@@ -45,8 +45,8 @@ fi
 
 # Generate branch name following GIT_FLOW.md conventions
 if [ -z "$CUSTOM_NAME" ]; then
-    # Auto-generate name from commit message (kebab-case)
-    SANITIZED_NAME=$(echo "$COMMIT_MESSAGE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//' | cut -c1-50)
+    # Auto-generate name from commit message (kebab-case, max 30 chars)
+    SANITIZED_NAME=$(echo "$COMMIT_MESSAGE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//' | cut -c1-30)
     BRANCH_NAME="${BRANCH_TYPE}/${SANITIZED_NAME}"
 else
     BRANCH_NAME="${BRANCH_TYPE}/${CUSTOM_NAME}"
