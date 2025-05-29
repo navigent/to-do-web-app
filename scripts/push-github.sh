@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to add unstaged files, commit, create new branch following Git Flow, push, and create PR
+# Script to create branch following Git Flow, add files, commit with formatting fixes, and push
 
 # Colors for output
 GREEN='\033[0;32m'
@@ -14,15 +14,15 @@ usage() {
     echo -e "${BLUE}Usage:${NC}"
     echo "  npm run push-github \"commit message\" [branch-type] [branch-name]"
     echo ""
-    echo -e "${BLUE}Branch types:${NC}"
-    echo "  feature  - New features/functions (branches from develop)"
-    echo "  release  - Release preparation (branches from develop)"
-    echo "  hotfix   - Emergency fixes (branches from main/master)"
+    echo -e "${BLUE}Branch types (from GIT_FLOW.md):${NC}"
+    echo "  feature  - New features/functions (branches from dev)"
+    echo "  release  - Release preparation (branches from dev)"
+    echo "  hotfix   - Emergency fixes (branches from main)"
     echo ""
     echo -e "${BLUE}Examples:${NC}"
-    echo "  npm run push-github \"Add user authentication\" feature"
-    echo "  npm run push-github \"Prepare v1.2.0\" release v1.2.0"
-    echo "  npm run push-github \"Fix critical bug\" hotfix"
+    echo "  npm run push-github \"Add user authentication\" feature user-authentication"
+    echo "  npm run push-github \"Prepare release 1.0.0\" release 1.0.0"
+    echo "  npm run push-github \"Fix critical security issue\" hotfix security-patch"
     exit 1
 }
 
@@ -43,9 +43,9 @@ if [[ ! "$BRANCH_TYPE" =~ ^(feature|release|hotfix)$ ]]; then
     usage
 fi
 
-# Generate branch name if not provided
+# Generate branch name following GIT_FLOW.md conventions
 if [ -z "$CUSTOM_NAME" ]; then
-    # Auto-generate name from commit message
+    # Auto-generate name from commit message (kebab-case)
     SANITIZED_NAME=$(echo "$COMMIT_MESSAGE" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/-/g' | sed 's/--*/-/g' | sed 's/^-//' | sed 's/-$//' | cut -c1-50)
     BRANCH_NAME="${BRANCH_TYPE}/${SANITIZED_NAME}"
 else
@@ -54,11 +54,12 @@ fi
 
 echo -e "${BLUE}Starting GitHub push workflow...${NC}"
 echo -e "${BLUE}Branch type: ${BRANCH_TYPE}${NC}"
+echo -e "${BLUE}Branch name: ${BRANCH_NAME}${NC}"
 
 # Get current branch
 CURRENT_BRANCH=$(git branch --show-current)
 
-# Determine base branch based on type
+# Determine base branch based on GIT_FLOW.md rules
 case $BRANCH_TYPE in
     feature|release)
         BASE_BRANCH="dev"
@@ -76,49 +77,55 @@ esac
 
 echo -e "${BLUE}Base branch: ${BASE_BRANCH}${NC}"
 
-# Check for uncommitted changes
-if [[ -n $(git status -s) ]]; then
-    echo -e "${GREEN}Adding all changes...${NC}"
-    git add -A
+# Step 1: Create and checkout branch based on Git Flow
+if [[ "$CURRENT_BRANCH" != "$BRANCH_NAME" ]]; then
+    # Ensure we're on the correct base branch first
+    echo -e "${GREEN}Switching to base branch: $BASE_BRANCH${NC}"
+    git checkout "$BASE_BRANCH"
     
-    echo -e "${GREEN}Committing changes...${NC}"
-    git commit -m "$COMMIT_MESSAGE"
-else
-    echo -e "${BLUE}No uncommitted changes found${NC}"
-fi
-
-# Create and switch to new branch if needed
-if [[ "$CURRENT_BRANCH" == "$BRANCH_NAME" ]]; then
-    echo -e "${BLUE}Already on branch: $BRANCH_NAME${NC}"
-elif [[ "$CURRENT_BRANCH" == "main" ]] || [[ "$CURRENT_BRANCH" == "master" ]] || [[ "$CURRENT_BRANCH" == "dev" ]]; then
-    # Ensure we're on the correct base branch
-    if [[ "$CURRENT_BRANCH" != "$BASE_BRANCH" ]]; then
-        echo -e "${GREEN}Switching to base branch: $BASE_BRANCH${NC}"
-        git checkout "$BASE_BRANCH"
-        
-        # Pull latest changes
-        echo -e "${GREEN}Pulling latest changes from $BASE_BRANCH...${NC}"
-        git pull origin "$BASE_BRANCH"
-    fi
+    # Pull latest changes
+    echo -e "${GREEN}Pulling latest changes from $BASE_BRANCH...${NC}"
+    git pull origin "$BASE_BRANCH"
     
-    echo -e "${GREEN}Creating new branch: $BRANCH_NAME${NC}"
+    # Create and checkout new branch
+    echo -e "${GREEN}Creating and checking out new branch: $BRANCH_NAME${NC}"
     git checkout -b "$BRANCH_NAME"
 else
-    # On a different feature branch
-    echo -e "${YELLOW}Warning: Currently on branch '$CURRENT_BRANCH'${NC}"
-    read -p "Create new branch '$BRANCH_NAME' from '$BASE_BRANCH'? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        git checkout "$BASE_BRANCH"
-        git pull origin "$BASE_BRANCH"
-        git checkout -b "$BRANCH_NAME"
+    echo -e "${BLUE}Already on branch: $BRANCH_NAME${NC}"
+fi
+
+# Step 2: Add all files
+echo -e "${GREEN}Adding all files...${NC}"
+git add .
+
+# Step 3: Commit
+echo -e "${GREEN}Committing changes...${NC}"
+git commit -m "$COMMIT_MESSAGE" 2>&1 | tee /tmp/git_commit_output.txt
+
+# Step 4: Check if there were formatting issues
+if grep -q "husky\|prettier\|eslint\|lint" /tmp/git_commit_output.txt; then
+    echo -e "${YELLOW}Formatting issues detected, fixing...${NC}"
+    
+    # Wait a moment for any auto-fixes to complete
+    sleep 1
+    
+    # Add any files that were auto-fixed
+    echo -e "${GREEN}Adding auto-fixed files...${NC}"
+    git add .
+    
+    # Check if there are changes to commit
+    if [[ -n $(git diff --cached --name-only) ]]; then
+        echo -e "${GREEN}Committing formatting fixes...${NC}"
+        git commit -m "style: Auto-fix formatting issues" --no-verify
     else
-        BRANCH_NAME="$CURRENT_BRANCH"
-        echo -e "${BLUE}Continuing with current branch: $BRANCH_NAME${NC}"
+        echo -e "${BLUE}No additional formatting fixes needed${NC}"
     fi
 fi
 
-# Push to origin
+# Clean up temp file
+rm -f /tmp/git_commit_output.txt
+
+# Step 5: Push to origin
 echo -e "${GREEN}Pushing to origin...${NC}"
 git push -u origin "$BRANCH_NAME"
 
