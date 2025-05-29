@@ -1,10 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
+import { TaskDeleteConfirmation } from '@/components/ui/confirmation-dialog'
 import { Task, TaskPriority, TaskStatus } from '@/types'
 import { CalendarDays, Clock, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -32,6 +34,9 @@ const statusColors: Record<TaskStatus, string> = {
 }
 
 export function TaskCard({ task, onStatusChange, onEdit, onDelete, isLoading = false }: TaskCardProps) {
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  
   const isCompleted = task.status === 'COMPLETED'
   const isCancelled = task.status === 'CANCELLED'
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !isCompleted
@@ -40,6 +45,25 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete, isLoading = f
     if (onStatusChange) {
       const newStatus = isCompleted ? 'PENDING' : 'COMPLETED'
       onStatusChange(task.id, newStatus)
+    }
+  }
+
+  const handleDeleteClick = () => {
+    setShowDeleteConfirmation(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (onDelete) {
+      setIsDeleting(true)
+      try {
+        await onDelete(task.id)
+        setShowDeleteConfirmation(false)
+      } catch (error) {
+        // Error handling is done in parent component
+        console.error('Delete failed:', error)
+      } finally {
+        setIsDeleting(false)
+      }
     }
   }
 
@@ -121,7 +145,7 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete, isLoading = f
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => onDelete(task.id)}
+                onClick={handleDeleteClick}
                 className="h-9 w-9 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive"
                 disabled={isLoading}
               >
@@ -166,6 +190,16 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete, isLoading = f
           </div>
         </div>
       </CardContent>
+
+      {/* Delete Confirmation Dialog */}
+      <TaskDeleteConfirmation
+        open={showDeleteConfirmation}
+        onOpenChange={setShowDeleteConfirmation}
+        taskTitle={task.title}
+        taskDescription={task.description}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+      />
     </Card>
   )
 }

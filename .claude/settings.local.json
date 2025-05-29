@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx prisma init:*)",
+      "Bash(npm run push-github:*)",
+      "Bash(git push:*)",
+      "Bash(./scripts/fetch-merge-github.sh:*)",
+      "Bash(npm run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(bash:*)"
+    ],
+    "deny": []
+  },
+  "enableAllProjectMcpServers": false
+}

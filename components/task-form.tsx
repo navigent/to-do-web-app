@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { UnsavedChangesConfirmation } from '@/components/ui/confirmation-dialog'
 import { Task, CreateTaskData, UpdateTaskData, TaskPriority } from '@/types'
 import { useAsync } from '@/hooks/use-async'
 import { CalendarDays, X } from 'lucide-react'

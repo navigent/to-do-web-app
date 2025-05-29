@@ -12,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { ClearFiltersConfirmation } from '@/components/ui/confirmation-dialog'
 import { TaskFilters, TaskPriority, TaskStatus } from '@/types'
 import { Search, Filter, X, SortAsc, SortDesc } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -52,6 +53,7 @@ const sortOptions = [
 
 export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterProps) {
   const [isExpanded, setIsExpanded] = useState(false)
+  const [showClearConfirmation, setShowClearConfirmation] = useState(false)
 
   const handleSearchChange = (search: string) => {
     onFiltersChange({ ...filters, search: search || undefined })
@@ -91,7 +93,27 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
   }
 
   const handleClearFilters = () => {
+    const activeFilterCount = getActiveFilterCount()
+    
+    // Only show confirmation if there are multiple active filters
+    if (activeFilterCount > 2) {
+      setShowClearConfirmation(true)
+    } else {
+      onFiltersChange({})
+    }
+  }
+
+  const handleClearFiltersConfirm = () => {
     onFiltersChange({})
+    setShowClearConfirmation(false)
+  }
+
+  const getActiveFilterCount = () => {
+    let count = 0
+    if (filters.status?.length) count += filters.status.length
+    if (filters.priority?.length) count += filters.priority.length
+    if (filters.search?.trim()) count += 1
+    return count
   }
 
   const hasActiveFilters = filters.status?.length || filters.priority?.length || filters.search
@@ -227,6 +249,14 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
           </>
         )}
       </CardContent>
+
+      {/* Clear Filters Confirmation Dialog */}
+      <ClearFiltersConfirmation
+        open={showClearConfirmation}
+        onOpenChange={setShowClearConfirmation}
+        filterCount={getActiveFilterCount()}
+        onConfirm={handleClearFiltersConfirm}
+      />
     </Card>
   )
 }
