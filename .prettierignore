@@ -1,0 +1,21 @@
+# Dependencies
+node_modules
+.next
+out
+build
+dist
+
+# Files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+*.md
+.gitignore
+
+# Database
+*.db
+*.sqlite
+
+# Generated
+public/sw.js
+public/workbox-*.js

@@ -7,9 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "lint:fix": "next lint --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "type-check": "tsc --noEmit",
+    "validate": "npm run type-check && npm run lint && npm run format:check",
     "push-github": "bash scripts/push-github.sh",
-    "fetch-merge-github": "bash scripts/fetch-merge-github.sh"
+    "fetch-merge-github": "bash scripts/fetch-merge-github.sh",
+    "prepare": "husky"
   },
   "dependencies": {
     "next": "^15.3.2",
@@ -20,8 +25,15 @@
     "@types/node": "^22.15.24",
     "@types/react": "^19.1.6",
     "@types/react-dom": "^19.1.5",
+    "@typescript-eslint/eslint-plugin": "^8.33.0",
+    "@typescript-eslint/parser": "^8.33.0",
     "eslint": "^9.27.0",
     "eslint-config-next": "^15.3.2",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.0",
+    "prettier": "^3.5.3",
     "typescript": "^5.8.3"
   }
 }
