@@ -88,9 +88,7 @@ npm run fetch-merge-github
 ```
 
 **Features:**
-- Checks for uncommitted changes (offers to stash)
-- Switches to main branch and pulls latest changes
-- Switches back to your feature branch
+- Checks for uncommitted changes
 - Shows preview of changes to merge
 - Handles merge conflicts gracefully
 - Optional push after successful merge
