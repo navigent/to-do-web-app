@@ -57,6 +57,10 @@ else
             echo -e "${GREEN}Pushing to origin...${NC}"
             git push origin "$CURRENT_BRANCH"
         fi
+        
+        # Switch back to main branch
+        echo -e "${GREEN}Switching back to main branch...${NC}"
+        git checkout main
     else
         echo -e "${RED}❌ Merge conflicts detected!${NC}"
         echo -e "${YELLOW}Please resolve conflicts and commit${NC}"
@@ -73,4 +77,6 @@ fi
 
 echo -e "${BLUE}═══════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Fetch and merge workflow completed!${NC}"
+FINAL_BRANCH=$(git branch --show-current)
+echo -e "${GREEN}📍 Now on branch: ${YELLOW}$FINAL_BRANCH${NC}"
 echo -e "${BLUE}═══════════════════════════════════════════${NC}"
