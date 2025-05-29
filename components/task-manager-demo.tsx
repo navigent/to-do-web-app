@@ -21,8 +21,8 @@ const mockTasks: Task[] = [
     id: '1',
     title: 'Setup development environment',
     description: 'Install Node.js, npm, and configure the project',
-    status: 'completed',
-    priority: 'high',
+    status: 'COMPLETED',
+    priority: 'HIGH',
     createdAt: new Date('2024-01-15T10:00:00Z'),
     updatedAt: new Date('2024-01-15T14:30:00Z'),
     completedAt: new Date('2024-01-15T14:30:00Z'),
@@ -31,8 +31,8 @@ const mockTasks: Task[] = [
     id: '2',
     title: 'Design user interface mockups',
     description: 'Create wireframes and high-fidelity designs for the task management app',
-    status: 'in_progress',
-    priority: 'medium',
+    status: 'IN_PROGRESS',
+    priority: 'MEDIUM',
     createdAt: new Date('2024-01-16T09:00:00Z'),
     updatedAt: new Date('2024-01-16T15:20:00Z'),
     dueDate: new Date('2024-01-20T17:00:00Z'),
@@ -41,8 +41,8 @@ const mockTasks: Task[] = [
     id: '3',
     title: 'Implement authentication system',
     description: 'Add user registration, login, and session management',
-    status: 'pending',
-    priority: 'urgent',
+    status: 'PENDING',
+    priority: 'URGENT',
     createdAt: new Date('2024-01-17T11:30:00Z'),
     updatedAt: new Date('2024-01-17T11:30:00Z'),
     dueDate: new Date('2024-01-18T23:59:00Z'),
@@ -51,8 +51,8 @@ const mockTasks: Task[] = [
     id: '4',
     title: 'Write unit tests',
     description: 'Create comprehensive test coverage for all components',
-    status: 'pending',
-    priority: 'low',
+    status: 'PENDING',
+    priority: 'LOW',
     createdAt: new Date('2024-01-18T08:15:00Z'),
     updatedAt: new Date('2024-01-18T08:15:00Z'),
   },
@@ -97,7 +97,7 @@ export function TaskManagerDemo() {
       let bValue: any = b[sortBy]
 
       if (sortBy === 'priority') {
-        const priorityOrder = { low: 1, medium: 2, high: 3, urgent: 4 }
+        const priorityOrder = { LOW: 1, MEDIUM: 2, HIGH: 3, URGENT: 4 }
         aValue = priorityOrder[a.priority]
         bValue = priorityOrder[b.priority]
       }
@@ -119,10 +119,10 @@ export function TaskManagerDemo() {
   const taskCounts = useMemo(() => {
     return {
       total: tasks.length,
-      pending: tasks.filter((t) => t.status === 'pending').length,
-      in_progress: tasks.filter((t) => t.status === 'in_progress').length,
-      completed: tasks.filter((t) => t.status === 'completed').length,
-      cancelled: tasks.filter((t) => t.status === 'cancelled').length,
+      pending: tasks.filter((t) => t.status === 'PENDING').length,
+      in_progress: tasks.filter((t) => t.status === 'IN_PROGRESS').length,
+      completed: tasks.filter((t) => t.status === 'COMPLETED').length,
+      cancelled: tasks.filter((t) => t.status === 'CANCELLED').length,
     }
   }, [tasks])
 
@@ -131,11 +131,11 @@ export function TaskManagerDemo() {
       id: Date.now().toString(),
       title: data.title,
       description: data.description,
-      status: 'pending',
+      status: 'PENDING',
       priority: data.priority,
       createdAt: new Date(),
       updatedAt: new Date(),
-      dueDate: data.dueDate,
+      dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
     }
     setTasks((prev) => [newTask, ...prev])
     toast({
@@ -154,7 +154,7 @@ export function TaskManagerDemo() {
               ...task,
               ...data,
               updatedAt: new Date(),
-              completedAt: data.status === 'completed' ? new Date() : task.completedAt,
+              completedAt: data.status === 'COMPLETED' ? new Date() : task.completedAt,
             }
           : task,
       ),
@@ -175,18 +175,18 @@ export function TaskManagerDemo() {
               ...task,
               status,
               updatedAt: new Date(),
-              completedAt: status === 'completed' ? new Date() : undefined,
+              completedAt: status === 'COMPLETED' ? new Date() : undefined,
             }
           : task,
       ),
     )
 
     if (task) {
-      const statusText = status === 'completed' ? 'completed' : 'updated'
+      const statusText = status === 'COMPLETED' ? 'completed' : 'updated'
       toast({
         title: `Task ${statusText}`,
         description: `"${task.title}" has been ${statusText}.`,
-        variant: status === 'completed' ? 'default' : 'default',
+        variant: status === 'COMPLETED' ? 'default' : 'default',
       })
     }
   }

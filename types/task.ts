@@ -1,24 +1,24 @@
-export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent'
+export type TaskPriority = 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT'
 
-export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled'
+export type TaskStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED'
 
 export interface Task {
   id: string
   title: string
-  description?: string
+  description?: string | null
   status: TaskStatus
   priority: TaskPriority
-  createdAt: Date
-  updatedAt: Date
-  completedAt?: Date
-  dueDate?: Date
+  createdAt: Date | string
+  updatedAt: Date | string
+  completedAt?: Date | string | null
+  dueDate?: Date | string | null
 }
 
 export interface CreateTaskData {
   title: string
   description?: string
   priority: TaskPriority
-  dueDate?: Date
+  dueDate?: string
 }
 
 export interface UpdateTaskData {
@@ -26,7 +26,7 @@ export interface UpdateTaskData {
   description?: string
   status?: TaskStatus
   priority?: TaskPriority
-  dueDate?: Date
+  dueDate?: string
 }
 
 export interface TaskFilters {

@@ -16,32 +16,32 @@ interface TaskCardProps {
 }
 
 const priorityColors: Record<TaskPriority, string> = {
-  low: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  medium: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  high: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  urgent: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  LOW: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+  URGENT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 }
 
 const statusColors: Record<TaskStatus, string> = {
-  pending: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-  in_progress: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  completed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  cancelled: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
+  IN_PROGRESS: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  COMPLETED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 }
 
 export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardProps) {
-  const isCompleted = task.status === 'completed'
-  const isCancelled = task.status === 'cancelled'
+  const isCompleted = task.status === 'COMPLETED'
+  const isCancelled = task.status === 'CANCELLED'
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !isCompleted
 
   const handleToggleComplete = () => {
     if (onStatusChange) {
-      const newStatus = isCompleted ? 'pending' : 'completed'
+      const newStatus = isCompleted ? 'PENDING' : 'COMPLETED'
       onStatusChange(task.id, newStatus)
     }
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (date: Date | string) => {
     return new Intl.DateTimeFormat('en-US', {
       month: 'short',
       day: 'numeric',
@@ -49,7 +49,7 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardPro
     }).format(new Date(date))
   }
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date: Date | string) => {
     return new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
       minute: '2-digit',

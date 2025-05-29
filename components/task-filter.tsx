@@ -29,17 +29,17 @@ interface TaskFilterProps {
 }
 
 const statusOptions: { value: TaskStatus; label: string; color: string }[] = [
-  { value: 'pending', label: 'Pending', color: 'bg-gray-100 text-gray-800' },
-  { value: 'in_progress', label: 'In Progress', color: 'bg-blue-100 text-blue-800' },
-  { value: 'completed', label: 'Completed', color: 'bg-green-100 text-green-800' },
-  { value: 'cancelled', label: 'Cancelled', color: 'bg-red-100 text-red-800' },
+  { value: 'PENDING', label: 'Pending', color: 'bg-gray-100 text-gray-800' },
+  { value: 'IN_PROGRESS', label: 'In Progress', color: 'bg-blue-100 text-blue-800' },
+  { value: 'COMPLETED', label: 'Completed', color: 'bg-green-100 text-green-800' },
+  { value: 'CANCELLED', label: 'Cancelled', color: 'bg-red-100 text-red-800' },
 ]
 
 const priorityOptions: { value: TaskPriority; label: string; color: string }[] = [
-  { value: 'low', label: 'Low', color: 'bg-blue-100 text-blue-800' },
-  { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800' },
-  { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800' },
+  { value: 'LOW', label: 'Low', color: 'bg-blue-100 text-blue-800' },
+  { value: 'MEDIUM', label: 'Medium', color: 'bg-yellow-100 text-yellow-800' },
+  { value: 'HIGH', label: 'High', color: 'bg-orange-100 text-orange-800' },
+  { value: 'URGENT', label: 'Urgent', color: 'bg-red-100 text-red-800' },
 ]
 
 const sortOptions = [

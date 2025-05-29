@@ -24,7 +24,7 @@ interface TaskFormProps {
 export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title || '')
   const [description, setDescription] = useState(task?.description || '')
-  const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'medium')
+  const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'MEDIUM')
   const [dueDate, setDueDate] = useState(
     task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
   )
@@ -40,7 +40,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
       title: title.trim(),
       description: description.trim() || undefined,
       priority,
-      dueDate: dueDate ? new Date(dueDate) : undefined,
+      dueDate: dueDate || undefined,
     }
 
     onSubmit(formData)
