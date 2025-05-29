@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import {
   Select,
   SelectContent,
@@ -12,16 +13,17 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Task, CreateTaskData, UpdateTaskData, TaskPriority } from '@/types'
+import { useAsync } from '@/hooks/use-async'
 import { CalendarDays, X } from 'lucide-react'
 
 interface TaskFormProps {
   task?: Task
-  onSubmit: (data: CreateTaskData | UpdateTaskData) => void
+  onSubmit: (data: CreateTaskData | UpdateTaskData) => Promise<void> | void
   onCancel?: () => void
   isLoading?: boolean
 }
 
-export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps) {
+export function TaskForm({ task, onSubmit, onCancel, isLoading: externalLoading }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title || '')
   const [description, setDescription] = useState(task?.description || '')
   const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'MEDIUM')
@@ -29,12 +31,14 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
     task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
   )
 
+  const { loading: asyncLoading, execute } = useAsync(onSubmit)
+  const isLoading = externalLoading || asyncLoading
   const isEditing = !!task
   const isValid = title.trim().length > 0
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!isValid) return
+    if (!isValid || isLoading) return
 
     const formData = {
       title: title.trim(),
@@ -43,7 +47,12 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
       dueDate: dueDate || undefined,
     }
 
-    onSubmit(formData)
+    try {
+      await execute(formData)
+    } catch (error) {
+      // Error handling is done in parent component
+      console.error('Form submission failed:', error)
+    }
   }
 
   const formatDateForInput = (date: string) => {
@@ -151,7 +160,14 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading }: TaskFormProps)
 
           <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-3 sm:pt-4">
             <Button type="submit" disabled={!isValid || isLoading} className="w-full sm:flex-1">
-              {isLoading ? 'Saving...' : isEditing ? 'Update Task' : 'Create Task'}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <Spinner size="sm" />
+                  Saving...
+                </div>
+              ) : (
+                isEditing ? 'Update Task' : 'Create Task'
+              )}
             </Button>
             {onCancel && (
               <Button

@@ -13,6 +13,8 @@ import { TaskList } from './task-list'
 import { TaskFilter } from './task-filter'
 import { AddTaskButton } from './add-task-button'
 import { TaskForm } from './task-form'
+import { ErrorBoundary } from './error-boundary'
+import { TaskListSkeleton } from './ui/loading-skeleton'
 import { useToast } from '@/hooks/use-toast'
 
 // Mock data for demonstration
@@ -62,7 +64,19 @@ export function TaskManagerDemo() {
   const [tasks, setTasks] = useState<Task[]>(mockTasks)
   const [filters, setFilters] = useState<TaskFilters>({})
   const [editingTask, setEditingTask] = useState<Task | null>(null)
+  const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
+  const [isInitialLoading, setIsInitialLoading] = useState(false)
   const { toast } = useToast()
+
+  // Simulate async operations with loading states
+  const setTaskLoading = (taskId: string, loading: boolean) => {
+    setLoadingStates(prev => ({ ...prev, [taskId]: loading }))
+  }
+
+  // Simulate network delay
+  const simulateNetworkDelay = (ms: number = 800) => {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
 
   // Filter and sort tasks
   const filteredTasks = useMemo(() => {
@@ -126,123 +140,203 @@ export function TaskManagerDemo() {
     }
   }, [tasks])
 
-  const handleAddTask = (data: CreateTaskData) => {
-    const newTask: Task = {
-      id: Date.now().toString(),
-      title: data.title,
-      description: data.description,
-      status: 'PENDING',
-      priority: data.priority,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+  const handleAddTask = async (data: CreateTaskData) => {
+    try {
+      await simulateNetworkDelay(600)
+      
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: data.title,
+        description: data.description,
+        status: 'PENDING',
+        priority: data.priority,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        dueDate: data.dueDate ? new Date(data.dueDate) : undefined,
+      }
+      
+      // Simulate potential error
+      if (Math.random() < 0.1) {
+        throw new Error('Failed to create task. Please try again.')
+      }
+      
+      setTasks((prev) => [newTask, ...prev])
+      toast({
+        title: 'Task created',
+        description: `"${data.title}" has been added to your tasks.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error creating task',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+      throw error
     }
-    setTasks((prev) => [newTask, ...prev])
-    toast({
-      title: 'Task created',
-      description: `"${data.title}" has been added to your tasks.`,
-    })
   }
 
-  const handleUpdateTask = (data: UpdateTaskData) => {
+  const handleUpdateTask = async (data: UpdateTaskData) => {
     if (!editingTask) return
 
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === editingTask.id
-          ? {
-              ...task,
-              ...data,
-              updatedAt: new Date(),
-              completedAt: data.status === 'COMPLETED' ? new Date() : task.completedAt,
-            }
-          : task,
-      ),
-    )
-    setEditingTask(null)
-    toast({
-      title: 'Task updated',
-      description: `"${editingTask.title}" has been updated.`,
-    })
+    try {
+      await simulateNetworkDelay(500)
+      
+      // Simulate potential error
+      if (Math.random() < 0.1) {
+        throw new Error('Failed to update task. Please try again.')
+      }
+      
+      setTasks((prev) =>
+        prev.map((task) =>
+          task.id === editingTask.id
+            ? {
+                ...task,
+                ...data,
+                updatedAt: new Date(),
+                completedAt: data.status === 'COMPLETED' ? new Date() : task.completedAt,
+              }
+            : task,
+        ),
+      )
+      setEditingTask(null)
+      toast({
+        title: 'Task updated',
+        description: `"${editingTask.title}" has been updated.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error updating task',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+      throw error
+    }
   }
 
-  const handleStatusChange = (taskId: string, status: TaskStatus) => {
+  const handleStatusChange = async (taskId: string, status: TaskStatus) => {
     const task = tasks.find((t) => t.id === taskId)
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? {
-              ...task,
-              status,
-              updatedAt: new Date(),
-              completedAt: status === 'COMPLETED' ? new Date() : undefined,
-            }
-          : task,
-      ),
-    )
+    if (!task) return
 
-    if (task) {
+    setTaskLoading(taskId, true)
+    
+    try {
+      await simulateNetworkDelay(400)
+      
+      // Simulate potential error
+      if (Math.random() < 0.05) {
+        throw new Error('Failed to update status. Please try again.')
+      }
+      
+      setTasks((prev) =>
+        prev.map((t) =>
+          t.id === taskId
+            ? {
+                ...t,
+                status,
+                updatedAt: new Date(),
+                completedAt: status === 'COMPLETED' ? new Date() : undefined,
+              }
+            : t,
+        ),
+      )
+
       const statusText = status === 'COMPLETED' ? 'completed' : 'updated'
       toast({
         title: `Task ${statusText}`,
         description: `"${task.title}" has been ${statusText}.`,
-        variant: status === 'COMPLETED' ? 'default' : 'default',
       })
+    } catch (error) {
+      toast({
+        title: 'Error updating status',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+    } finally {
+      setTaskLoading(taskId, false)
     }
   }
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     const task = tasks.find((t) => t.id === taskId)
-    setTasks((prev) => prev.filter((task) => task.id !== taskId))
+    if (!task) return
 
-    if (task) {
+    setTaskLoading(taskId, true)
+    
+    try {
+      await simulateNetworkDelay(300)
+      
+      // Simulate potential error
+      if (Math.random() < 0.05) {
+        throw new Error('Failed to delete task. Please try again.')
+      }
+      
+      setTasks((prev) => prev.filter((t) => t.id !== taskId))
       toast({
         title: 'Task deleted',
         description: `"${task.title}" has been removed from your tasks.`,
         variant: 'destructive',
       })
+    } catch (error) {
+      toast({
+        title: 'Error deleting task',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+    } finally {
+      setTaskLoading(taskId, false)
     }
   }
 
   if (editingTask) {
     return (
-      <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-2xl">
-        <TaskForm
-          task={editingTask}
-          onSubmit={handleUpdateTask}
-          onCancel={() => setEditingTask(null)}
-        />
-      </div>
+      <ErrorBoundary>
+        <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-2xl">
+          <TaskForm
+            task={editingTask}
+            onSubmit={handleUpdateTask}
+            onCancel={() => setEditingTask(null)}
+          />
+        </div>
+      </ErrorBoundary>
     )
   }
 
   return (
-    <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
-      <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
-        {/* Sidebar with filters and add button */}
-        <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
-          <AddTaskButton onAddTask={handleAddTask} variant="card" />
-          <TaskFilter filters={filters} onFiltersChange={setFilters} taskCounts={taskCounts} />
-        </div>
-
-        {/* Main content area */}
-        <div className="flex-1">
-          <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Tasks</h1>
-            <p className="text-sm sm:text-base text-muted-foreground">
-              Showing {filteredTasks.length} of {tasks.length} tasks
-            </p>
+    <ErrorBoundary>
+      <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
+        <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
+          {/* Sidebar with filters and add button */}
+          <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
+            <ErrorBoundary>
+              <AddTaskButton onAddTask={handleAddTask} variant="card" />
+            </ErrorBoundary>
+            <ErrorBoundary>
+              <TaskFilter filters={filters} onFiltersChange={setFilters} taskCounts={taskCounts} />
+            </ErrorBoundary>
           </div>
 
-          <TaskList
-            tasks={filteredTasks}
-            onStatusChange={handleStatusChange}
-            onEdit={setEditingTask}
-            onDelete={handleDeleteTask}
-            emptyMessage="No tasks match your current filters. Try adjusting your search or filter criteria."
-          />
+          {/* Main content area */}
+          <div className="flex-1">
+            <div className="mb-4 sm:mb-6">
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Tasks</h1>
+              <p className="text-sm sm:text-base text-muted-foreground">
+                Showing {filteredTasks.length} of {tasks.length} tasks
+              </p>
+            </div>
+
+            <ErrorBoundary>
+              <TaskList
+                tasks={filteredTasks}
+                onStatusChange={handleStatusChange}
+                onEdit={setEditingTask}
+                onDelete={handleDeleteTask}
+                loadingStates={loadingStates}
+                emptyMessage="No tasks match your current filters. Try adjusting your search or filter criteria."
+              />
+            </ErrorBoundary>
+          </div>
         </div>
       </div>
-    </div>
+    </ErrorBoundary>
   )
 }

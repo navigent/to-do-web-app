@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Spinner } from '@/components/ui/spinner'
 import { Task, TaskPriority, TaskStatus } from '@/types'
 import { CalendarDays, Clock, Edit, Trash2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -13,6 +14,7 @@ interface TaskCardProps {
   onStatusChange?: (taskId: string, status: TaskStatus) => void
   onEdit?: (task: Task) => void
   onDelete?: (taskId: string) => void
+  isLoading?: boolean
 }
 
 const priorityColors: Record<TaskPriority, string> = {
@@ -29,7 +31,7 @@ const statusColors: Record<TaskStatus, string> = {
   CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
 }
 
-export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardProps) {
+export function TaskCard({ task, onStatusChange, onEdit, onDelete, isLoading = false }: TaskCardProps) {
   const isCompleted = task.status === 'COMPLETED'
   const isCancelled = task.status === 'CANCELLED'
   const isOverdue = task.dueDate && new Date(task.dueDate) < new Date() && !isCompleted
@@ -63,17 +65,24 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardPro
         isCompleted && 'opacity-75',
         isCancelled && 'opacity-60',
         isOverdue && 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/50',
+        isLoading && 'opacity-60 pointer-events-none',
       )}
     >
       <CardHeader className="pb-2 sm:pb-3">
         <div className="flex items-start justify-between gap-3">
           <div className="flex items-start gap-2 sm:gap-3 flex-1">
-            <Checkbox
-              checked={isCompleted}
-              onCheckedChange={handleToggleComplete}
-              className="mt-1"
-              disabled={isCancelled}
-            />
+            {isLoading ? (
+              <div className="mt-1 flex items-center justify-center w-4 h-4">
+                <Spinner size="sm" className="text-muted-foreground" />
+              </div>
+            ) : (
+              <Checkbox
+                checked={isCompleted}
+                onCheckedChange={handleToggleComplete}
+                className="mt-1"
+                disabled={isCancelled || isLoading}
+              />
+            )}
             <div className="flex-1 min-w-0">
               <h3
                 className={cn(
@@ -103,6 +112,7 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardPro
                 size="sm"
                 onClick={() => onEdit(task)}
                 className="h-9 w-9 sm:h-8 sm:w-8 p-0"
+                disabled={isLoading}
               >
                 <Edit className="h-4 w-4" />
               </Button>
@@ -113,8 +123,13 @@ export function TaskCard({ task, onStatusChange, onEdit, onDelete }: TaskCardPro
                 size="sm"
                 onClick={() => onDelete(task.id)}
                 className="h-9 w-9 sm:h-8 sm:w-8 p-0 text-destructive hover:text-destructive"
+                disabled={isLoading}
               >
-                <Trash2 className="h-4 w-4" />
+                {isLoading ? (
+                  <Spinner size="sm" className="text-destructive" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
               </Button>
             )}
           </div>

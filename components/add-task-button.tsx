@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
 import { TaskForm } from './task-form'
 import { CreateTaskData, UpdateTaskData } from '@/types'
 import { Plus } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 
 interface AddTaskButtonProps {
-  onAddTask: (data: CreateTaskData) => void
+  onAddTask: (data: CreateTaskData) => Promise<void> | void
   isLoading?: boolean
   variant?: 'button' | 'card'
   className?: string
@@ -22,9 +23,14 @@ export function AddTaskButton({
 }: AddTaskButtonProps) {
   const [showForm, setShowForm] = useState(false)
 
-  const handleSubmit = (data: CreateTaskData | UpdateTaskData) => {
-    onAddTask(data as CreateTaskData)
-    setShowForm(false)
+  const handleSubmit = async (data: CreateTaskData | UpdateTaskData) => {
+    try {
+      await onAddTask(data as CreateTaskData)
+      setShowForm(false)
+    } catch (error) {
+      // Keep form open if there's an error
+      console.error('Failed to add task:', error)
+    }
   }
 
   const handleCancel = () => {
@@ -43,14 +49,22 @@ export function AddTaskButton({
     return (
       <Card
         className="border-2 border-dashed border-muted-foreground/25 hover:border-muted-foreground/50 transition-colors cursor-pointer group"
-        onClick={() => setShowForm(true)}
+        onClick={() => !isLoading && setShowForm(true)}
       >
         <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
           <div className="rounded-full bg-muted p-3 mb-3 group-hover:bg-muted/80 transition-colors">
-            <Plus className="h-6 w-6 text-muted-foreground" />
+            {isLoading ? (
+              <Spinner size="sm" className="text-muted-foreground" />
+            ) : (
+              <Plus className="h-6 w-6 text-muted-foreground" />
+            )}
           </div>
-          <h3 className="font-medium text-sm text-foreground mb-1">Add New Task</h3>
-          <p className="text-xs text-muted-foreground">Click to create a new task</p>
+          <h3 className="font-medium text-sm text-foreground mb-1">
+            {isLoading ? 'Creating Task...' : 'Add New Task'}
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {isLoading ? 'Please wait...' : 'Click to create a new task'}
+          </p>
         </div>
       </Card>
     )
@@ -58,8 +72,12 @@ export function AddTaskButton({
 
   return (
     <Button onClick={() => setShowForm(true)} disabled={isLoading} className={className}>
-      <Plus className="h-4 w-4 mr-2" />
-      Add Task
+      {isLoading ? (
+        <Spinner size="sm" className="mr-2" />
+      ) : (
+        <Plus className="h-4 w-4 mr-2" />
+      )}
+      {isLoading ? 'Creating...' : 'Add Task'}
     </Button>
   )
 }
