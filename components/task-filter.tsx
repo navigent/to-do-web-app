@@ -98,27 +98,27 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
 
   return (
     <Card className="w-full">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-2 sm:pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Filter className="h-5 w-5" />
+          <CardTitle className="text-base sm:text-lg flex items-center gap-2">
+            <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
             Filters
           </CardTitle>
           <div className="flex items-center gap-2">
             {hasActiveFilters && (
-              <Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs">
+              <Button variant="ghost" size="sm" onClick={handleClearFilters} className="text-xs px-2 sm:px-3">
                 <X className="h-3 w-3 mr-1" />
                 Clear
               </Button>
             )}
-            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)}>
+            <Button variant="ghost" size="sm" onClick={() => setIsExpanded(!isExpanded)} className="text-xs sm:text-sm">
               {isExpanded ? 'Collapse' : 'Expand'}
             </Button>
           </div>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 sm:space-y-4">
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -132,7 +132,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
 
         {/* Task counts */}
         {taskCounts && (
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1 sm:gap-2">
             <Badge variant="outline" className="text-xs">
               Total: {taskCounts.total}
             </Badge>
@@ -154,7 +154,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
             {/* Status filters */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Status</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1 sm:gap-2">
                 {statusOptions.map((option) => (
                   <Badge
                     key={option.value}
@@ -174,7 +174,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
             {/* Priority filters */}
             <div className="space-y-2">
               <label className="text-sm font-medium">Priority</label>
-              <div className="flex flex-wrap gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-1 sm:gap-2">
                 {priorityOptions.map((option) => (
                   <Badge
                     key={option.value}
@@ -192,8 +192,8 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
             </div>
 
             {/* Sort */}
-            <div className="flex gap-3">
-              <div className="flex-1">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+              <div className="flex-1 w-full">
                 <label className="text-sm font-medium">Sort by</label>
                 <Select value={filters.sortBy || 'createdAt'} onValueChange={handleSortChange}>
                   <SelectTrigger className="w-full">
@@ -208,7 +208,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex flex-col">
+              <div className="flex flex-col w-full sm:w-auto">
                 <label className="text-sm font-medium mb-2">Order</label>
                 <Button
                   variant="outline"
