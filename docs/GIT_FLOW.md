@@ -14,7 +14,7 @@ This project follows the Git Flow branching model for organized development and 
 │                              ▲                ▲                  │
 │                              │                │                  │
 ├─────────────────────────────────────────────────────────────────┤
-│                         develop (staging)                        │
+│                           dev (staging)                          │
 ├─────────────────────────────────────────────────────────────────┤
 │         ▲          ▲           ▲            ▲          ▲         │
 │         │          │           │            │          │         │
@@ -33,7 +33,7 @@ This project follows the Git Flow branching model for organized development and 
   - Only merge from `release` or `hotfix` branches
   - All code is tested and stable
 
-### 🚧 Develop Branch (`develop`)
+### 🚧 Dev Branch (`dev`)
 - **Purpose**: Integration branch for features
 - **Rules**:
   - Protected branch
@@ -46,7 +46,7 @@ This project follows the Git Flow branching model for organized development and 
 - **Naming**: `feature/descriptive-name`
 - **Flow**:
   ```
-  develop → feature/xxx → develop
+  dev → feature/xxx → dev
   ```
 - **Examples**:
   - `feature/user-authentication`
@@ -58,7 +58,7 @@ This project follows the Git Flow branching model for organized development and 
 - **Naming**: `release/version-number`
 - **Flow**:
   ```
-  develop → release/xxx → main + develop
+  dev → release/xxx → main + dev
   ```
 - **Allowed changes**:
   - Bug fixes
@@ -74,11 +74,11 @@ This project follows the Git Flow branching model for organized development and 
 - **Naming**: `hotfix/descriptive-name`
 - **Flow**:
   ```
-  main → hotfix/xxx → main + develop
+  main → hotfix/xxx → main + dev
   ```
 - **Rules**:
   - Minimal changes only
-  - Must be merged to both `main` and `develop`
+  - Must be merged to both `main` and `dev`
   - Increment patch version
 - **Examples**:
   - `hotfix/security-patch`
@@ -88,9 +88,9 @@ This project follows the Git Flow branching model for organized development and 
 
 ### Starting a New Feature
 ```bash
-# 1. Make sure develop is up to date
-git checkout develop
-git pull origin develop
+# 1. Make sure dev is up to date
+git checkout dev
+git pull origin dev
 
 # 2. Create feature branch
 git checkout -b feature/new-awesome-feature
@@ -103,16 +103,16 @@ npm run push-github "Add awesome feature" feature new-awesome-feature
 
 ### Creating a Release
 ```bash
-# 1. Start from develop
-git checkout develop
-git pull origin develop
+# 1. Start from dev
+git checkout dev
+git pull origin dev
 
 # 2. Create release branch
 npm run push-github "Prepare release 1.0.0" release 1.0.0
 
 # 3. Make final adjustments, bug fixes...
 
-# 4. Merge to main and develop when ready
+# 4. Merge to main and dev when ready
 ```
 
 ### Emergency Hotfix
@@ -126,7 +126,7 @@ npm run push-github "Fix critical security issue" hotfix security-patch
 
 # 3. Apply minimal fix...
 
-# 4. Merge to both main and develop
+# 4. Merge to both main and dev
 ```
 
 ## Version Numbering
@@ -143,7 +143,7 @@ MAJOR.MINOR.PATCH
 
 ## Merge Strategy
 
-- **Feature → Develop**: Squash and merge (clean history)
+- **Feature → Dev**: Squash and merge (clean history)
 - **Release → Main**: Merge commit (preserve history)
 - **Hotfix → Main**: Merge commit (preserve history)
 - **Back-merges**: Regular merge (preserve history)
@@ -151,7 +151,7 @@ MAJOR.MINOR.PATCH
 ## Best Practices
 
 1. **Keep branches small**: Features should be focused and mergeable within days, not weeks
-2. **Regular updates**: Pull from develop frequently to avoid conflicts
+2. **Regular updates**: Pull from dev frequently to avoid conflicts
 3. **Clean commits**: Use meaningful commit messages following conventional commits
 4. **Test before merge**: All tests must pass before merging
 5. **Code review**: All PRs require at least one review

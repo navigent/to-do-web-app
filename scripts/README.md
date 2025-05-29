@@ -20,18 +20,18 @@ develop ◄────────────────┤
 ### Branch Types
 
 - **feature**: New features/functions/major refactorings
-  - Branch from: `develop`
-  - Merge to: `develop`
+  - Branch from: `dev`
+  - Merge to: `dev`
   - Naming: `feature/description`
 
 - **release**: Release preparation and bug fixes
-  - Branch from: `develop`
-  - Merge to: `develop` and `main`
+  - Branch from: `dev`
+  - Merge to: `dev` and `main`
   - Naming: `release/version`
 
 - **hotfix**: Emergency production fixes
   - Branch from: `main`
-  - Merge to: `main` and `develop`
+  - Merge to: `main` and `dev`
   - Naming: `hotfix/description`
 
 ## Available Scripts
@@ -71,7 +71,7 @@ npm run push-github "Fix critical security issue" hotfix
 
 **Workflow:**
 1. Validates branch type
-2. Switches to appropriate base branch (`develop` or `main`)
+2. Switches to appropriate base branch (`dev` or `main`)
 3. Pulls latest changes
 4. Creates new branch following Git Flow conventions
 5. Commits changes
@@ -117,9 +117,9 @@ npm run fetch-merge-github
 
 ## Best Practices
 
-1. **Features**: Always branch from latest `develop`
+1. **Features**: Always branch from latest `dev`
 2. **Releases**: Only bug fixes and cleanup, no new features
-3. **Hotfixes**: Minimal changes, must be merged to both `main` and `develop`
+3. **Hotfixes**: Minimal changes, must be merged to both `main` and `dev`
 4. **Commit Messages**: Use conventional commits (feat:, fix:, docs:, etc.)
 5. **Pull Requests**: Always request peer review before merging
 
@@ -134,7 +134,7 @@ Consider setting up these GitHub branch protection rules:
 - Include administrators
 - Restrict who can push
 
-### For `develop`:
+### For `dev`:
 - Require pull request reviews
 - Require status checks to pass
 - Dismiss stale pull request approvals
