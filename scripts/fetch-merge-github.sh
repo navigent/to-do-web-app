@@ -31,6 +31,18 @@ if [[ -n $(git status -s) ]]; then
     fi
 fi
 
+# Switch to main branch first to ensure we have the latest
+echo -e "${GREEN}Switching to main branch...${NC}"
+git checkout main
+
+# Pull latest changes from main
+echo -e "${GREEN}Pulling latest changes from main...${NC}"
+git pull origin main
+
+# Switch back to the original branch
+echo -e "${GREEN}Switching back to $CURRENT_BRANCH...${NC}"
+git checkout "$CURRENT_BRANCH"
+
 # Fetch latest from origin
 echo -e "${GREEN}Fetching latest from origin...${NC}"
 git fetch origin main
