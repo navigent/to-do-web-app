@@ -33,46 +33,23 @@ if [[ -n $(git status -s) ]]; then
     fi
 fi
 
+# Switch to main branch
+echo -e "${GREEN}Switching to main branch...${NC}"
+git checkout main
+
 # Fetch latest from origin
 echo -e "${GREEN}Fetching latest from origin...${NC}"
-git fetch origin main
+git fetch origin
 
-# Switch to main branch and pull latest
-echo -e "${GREEN}Switching to main branch to ensure latest state...${NC}"
-git checkout main
-git pull origin main
-
-# Show what will be merged
-echo -e "${BLUE}Changes to be merged into ${YELLOW}$CURRENT_BRANCH${BLUE}:${NC}"
-git log --oneline "$CURRENT_BRANCH"..main
-
-# Check if there are any changes to merge
-if [ -z "$(git log --oneline "$CURRENT_BRANCH"..main)" ]; then
-    echo -e "${GREEN}✅ ${YELLOW}$CURRENT_BRANCH${GREEN} is already up to date with main!${NC}"
+# Merge origin/main
+echo -e "${GREEN}Merging origin/main...${NC}"
+if git merge origin/main; then
+    echo -e "${GREEN}✅ Merge successful!${NC}"
 else
-    # Merge main into feature branch
-    echo -e "${GREEN}Merging ${YELLOW}main${GREEN} into ${YELLOW}$CURRENT_BRANCH${GREEN}...${NC}"
-    git checkout "$CURRENT_BRANCH"
-    if git merge main; then
-        echo -e "${GREEN}✅ Merge successful!${NC}"
-        
-        # Push the merge
-        read -p "Push merged changes to origin? (y/n): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo -e "${GREEN}Pushing to origin...${NC}"
-            git push origin "$CURRENT_BRANCH"
-        fi
-        
-        # Switch back to main branch
-        echo -e "${GREEN}Switching back to main branch...${NC}"
-        git checkout main
-    else
-        echo -e "${RED}❌ Merge conflicts detected!${NC}"
-        echo -e "${YELLOW}Please resolve conflicts and commit${NC}"
-        echo -e "${YELLOW}Files with conflicts:${NC}"
-        git diff --name-only --diff-filter=U
-    fi
+    echo -e "${RED}❌ Merge conflicts detected!${NC}"
+    echo -e "${YELLOW}Please resolve conflicts and commit${NC}"
+    echo -e "${YELLOW}Files with conflicts:${NC}"
+    git diff --name-only --diff-filter=U
 fi
 
 # Pop stash if we stashed

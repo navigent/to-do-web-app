@@ -90,12 +90,11 @@ npm run fetch-merge-github
 **Features:**
 - Shows current branch prominently
 - Checks for uncommitted changes (offers to stash)
-- Switches to main branch and pulls latest changes
-- Shows preview of changes to merge
-- Temporarily switches to feature branch for merge
+- Switches to main branch
+- Fetches latest from origin
+- Merges origin/main into local main
 - Handles merge conflicts gracefully
-- Optional push after successful merge
-- Returns to main branch after completion
+- Stays on main branch after completion
 
 ## Git Flow Commands Reference
 
