@@ -13,7 +13,9 @@ echo -e "${BLUE}Starting fetch and merge workflow...${NC}"
 
 # Get current branch
 CURRENT_BRANCH=$(git branch --show-current)
-echo -e "${BLUE}Current branch: $CURRENT_BRANCH${NC}"
+echo -e "${BLUE}═══════════════════════════════════════════${NC}"
+echo -e "${GREEN}📍 Current branch: ${YELLOW}$CURRENT_BRANCH${NC}"
+echo -e "${BLUE}═══════════════════════════════════════════${NC}"
 
 # Check for uncommitted changes
 if [[ -n $(git status -s) ]]; then
@@ -35,17 +37,26 @@ fi
 echo -e "${GREEN}Fetching latest from origin...${NC}"
 git fetch origin main
 
+# Switch to main branch and pull latest
+echo -e "${GREEN}Switching to main branch to ensure latest state...${NC}"
+git checkout main
+git pull origin main
+
+# Switch back to the feature branch
+echo -e "${GREEN}Switching back to ${YELLOW}$CURRENT_BRANCH${GREEN}...${NC}"
+git checkout "$CURRENT_BRANCH"
+
 # Show what will be merged
 echo -e "${BLUE}Changes to be merged:${NC}"
-git log --oneline "$CURRENT_BRANCH"..origin/main
+git log --oneline "$CURRENT_BRANCH"..main
 
 # Check if there are any changes to merge
-if [ -z "$(git log --oneline "$CURRENT_BRANCH"..origin/main)" ]; then
+if [ -z "$(git log --oneline "$CURRENT_BRANCH"..main)" ]; then
     echo -e "${GREEN}✅ Already up to date with main!${NC}"
 else
     # Merge main into current branch
-    echo -e "${GREEN}Merging main into $CURRENT_BRANCH...${NC}"
-    if git merge origin/main; then
+    echo -e "${GREEN}Merging ${YELLOW}main${GREEN} into ${YELLOW}$CURRENT_BRANCH${GREEN}...${NC}"
+    if git merge main; then
         echo -e "${GREEN}✅ Merge successful!${NC}"
         
         # Push the merge
@@ -69,4 +80,8 @@ if [ "$STASHED" = true ]; then
     git stash pop
 fi
 
+echo -e "${BLUE}═══════════════════════════════════════════${NC}"
 echo -e "${GREEN}✅ Fetch and merge workflow completed!${NC}"
+FINAL_BRANCH=$(git branch --show-current)
+echo -e "${GREEN}📍 Now on branch: ${YELLOW}$FINAL_BRANCH${NC}"
+echo -e "${BLUE}═══════════════════════════════════════════${NC}"
