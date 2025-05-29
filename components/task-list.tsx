@@ -9,6 +9,7 @@ interface TaskListProps {
   onStatusChange?: (taskId: string, status: TaskStatus) => void
   onEdit?: (task: Task) => void
   onDelete?: (taskId: string) => void
+  loadingStates?: Record<string, boolean>
   emptyMessage?: string
   className?: string
 }
@@ -18,6 +19,7 @@ export function TaskList({
   onStatusChange,
   onEdit,
   onDelete,
+  loadingStates = {},
   emptyMessage = 'No tasks found',
   className,
 }: TaskListProps) {
@@ -56,6 +58,7 @@ export function TaskList({
             onStatusChange={onStatusChange}
             onEdit={onEdit}
             onDelete={onDelete}
+            isLoading={loadingStates[task.id] || false}
           />
         ))}
       </div>
