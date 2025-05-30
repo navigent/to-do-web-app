@@ -43,17 +43,17 @@ interface TaskFilterProps {
 }
 
 const statusOptions: { value: TaskStatus; label: string; icon: React.ReactNode; color: string }[] = [
-  { value: 'PENDING', label: 'Pending', icon: <Circle className="h-3 w-3" />, color: 'bg-gray-100 text-gray-800 hover:bg-gray-200' },
-  { value: 'IN_PROGRESS', label: 'In Progress', icon: <PlayCircle className="h-3 w-3" />, color: 'bg-blue-100 text-blue-800 hover:bg-blue-200' },
-  { value: 'COMPLETED', label: 'Completed', icon: <CheckCircle2 className="h-3 w-3" />, color: 'bg-green-100 text-green-800 hover:bg-green-200' },
-  { value: 'CANCELLED', label: 'Cancelled', icon: <XCircle className="h-3 w-3" />, color: 'bg-red-100 text-red-800 hover:bg-red-200' },
+  { value: 'PENDING', label: 'Pending', icon: <Circle className="h-3 w-3" />, color: 'bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-800/50 dark:text-gray-300 dark:hover:bg-gray-800' },
+  { value: 'IN_PROGRESS', label: 'In Progress', icon: <PlayCircle className="h-3 w-3" />, color: 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900' },
+  { value: 'COMPLETED', label: 'Completed', icon: <CheckCircle2 className="h-3 w-3" />, color: 'bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900/50 dark:text-green-300 dark:hover:bg-green-900' },
+  { value: 'CANCELLED', label: 'Cancelled', icon: <XCircle className="h-3 w-3" />, color: 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900' },
 ]
 
 const priorityOptions: { value: TaskPriority; label: string; icon: string; color: string }[] = [
-  { value: 'LOW', label: 'Low', icon: '🟢', color: 'bg-blue-100 text-blue-800 hover:bg-blue-200' },
-  { value: 'MEDIUM', label: 'Medium', icon: '🟡', color: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' },
-  { value: 'HIGH', label: 'High', icon: '🟠', color: 'bg-orange-100 text-orange-800 hover:bg-orange-200' },
-  { value: 'URGENT', label: 'Urgent', icon: '🔴', color: 'bg-red-100 text-red-800 hover:bg-red-200' },
+  { value: 'LOW', label: 'Low', icon: '🟢', color: 'bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-900' },
+  { value: 'MEDIUM', label: 'Medium', icon: '🟡', color: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-300 dark:hover:bg-yellow-900' },
+  { value: 'HIGH', label: 'High', icon: '🟠', color: 'bg-orange-100 text-orange-800 hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-300 dark:hover:bg-orange-900' },
+  { value: 'URGENT', label: 'Urgent', icon: '🔴', color: 'bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900/50 dark:text-red-300 dark:hover:bg-red-900' },
 ]
 
 const sortOptions = [
