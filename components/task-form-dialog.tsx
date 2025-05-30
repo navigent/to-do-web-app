@@ -5,7 +5,9 @@ import { TaskForm } from './task-form'
 import {
   Dialog,
   DialogContent,
+  DialogTitle,
 } from '@/components/ui/dialog'
+import { VisuallyHidden } from '@/components/ui/visually-hidden'
 
 interface TaskFormDialogProps {
   open: boolean
@@ -31,7 +33,10 @@ export function TaskFormDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] p-0 gap-0 border-0 [&>button]:hidden overflow-hidden">
+      <DialogContent className="sm:max-w-[500px] p-0 gap-0 [&>button]:hidden overflow-hidden">
+        <VisuallyHidden>
+          <DialogTitle>{task ? 'Edit Task' : 'Create New Task'}</DialogTitle>
+        </VisuallyHidden>
         <TaskForm
           task={task}
           onSubmit={handleSubmit}

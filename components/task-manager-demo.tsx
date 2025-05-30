@@ -399,13 +399,6 @@ export function TaskManagerDemo() {
 
           {/* Main content area */}
           <div className="flex-1">
-            <div className="mb-4 sm:mb-6">
-              <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-1 sm:mb-2">Tasks</h1>
-              <p className="text-sm sm:text-base text-muted-foreground">
-                Showing {filteredTasks.length} of {tasks.length} tasks
-              </p>
-            </div>
-
             <ErrorBoundary>
               <TaskList
                 tasks={filteredTasks}
@@ -436,24 +429,24 @@ export function TaskManagerDemo() {
             </ErrorBoundary>
           </div>
         </div>
-      </div>
-
-      {/* Task Form Dialog */}
-      <TaskFormDialog
-        open={showAddTaskDialog}
-        onOpenChange={setShowAddTaskDialog}
-        onSubmit={handleAddTask}
-      />
-
-      {/* Edit Task Dialog */}
-      {editingTask && (
+        
+        {/* Task Form Dialog */}
         <TaskFormDialog
-          open={!!editingTask}
-          onOpenChange={(open) => !open && setEditingTask(null)}
-          task={editingTask}
-          onSubmit={handleUpdateTask}
+          open={showAddTaskDialog}
+          onOpenChange={setShowAddTaskDialog}
+          onSubmit={handleAddTask}
         />
-      )}
+
+        {/* Edit Task Dialog */}
+        {editingTask && (
+          <TaskFormDialog
+            open={!!editingTask}
+            onOpenChange={(open) => !open && setEditingTask(null)}
+            task={editingTask}
+            onSubmit={handleUpdateTask}
+          />
+        )}
+      </div>
     </ErrorBoundary>
   )
 }

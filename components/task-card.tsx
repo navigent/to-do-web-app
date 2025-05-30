@@ -30,10 +30,10 @@ interface TaskCardProps {
 }
 
 const priorityColors: Record<TaskPriority, string> = {
-  LOW: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  URGENT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  LOW: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  MEDIUM: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-300',
+  HIGH: 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+  URGENT: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
 }
 
 const priorityIcons: Record<TaskPriority, string> = {
@@ -44,10 +44,10 @@ const priorityIcons: Record<TaskPriority, string> = {
 }
 
 const statusColors: Record<TaskStatus, string> = {
-  PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300',
-  IN_PROGRESS: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  COMPLETED: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  PENDING: 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-300',
+  IN_PROGRESS: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+  COMPLETED: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  CANCELLED: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
 }
 
 export function TaskCard({ 
