@@ -2,8 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { updateTaskSchema, taskIdSchema } from '@/lib/validations/task'
 import { withErrorHandler, ApiError } from '@/lib/api-errors'
+import { withSecurity, validateRequestBody } from '@/lib/security-middleware'
 
-export const GET = withErrorHandler(async (
+export const GET = withSecurity({
+  enableRateLimit: true,
+  maxRequestsPerMinute: 200,
+})(withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -19,9 +23,14 @@ export const GET = withErrorHandler(async (
   }
 
   return NextResponse.json(task)
-})
+}))
 
-export const PATCH = withErrorHandler(async (
+export const PATCH = withSecurity({
+  enableRateLimit: true,
+  maxRequestsPerMinute: 50,
+  maxRequestSize: 1024 * 5, // 5KB
+  enableCSRF: true,
+})(withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -29,7 +38,13 @@ export const PATCH = withErrorHandler(async (
   const { id } = taskIdSchema.parse(resolvedParams)
   const body = await request.json()
   
-  // Validate request body
+  // Validate request body structure
+  const bodyValidation = validateRequestBody(body)
+  if (!bodyValidation.valid) {
+    throw new ApiError(400, bodyValidation.error || 'Invalid request body')
+  }
+  
+  // Validate and sanitize request data
   const validatedData = updateTaskSchema.parse(body)
 
   // Check if task exists before updating
@@ -48,9 +63,13 @@ export const PATCH = withErrorHandler(async (
   })
 
   return NextResponse.json(task)
-})
+}))
 
-export const DELETE = withErrorHandler(async (
+export const DELETE = withSecurity({
+  enableRateLimit: true,
+  maxRequestsPerMinute: 30,
+  enableCSRF: true,
+})(withErrorHandler(async (
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) => {
@@ -75,7 +94,7 @@ export const DELETE = withErrorHandler(async (
     message: 'Task deleted successfully',
     id 
   })
-})
+}))
 
 // Alias PUT to PATCH for backward compatibility
 export const PUT = PATCH
