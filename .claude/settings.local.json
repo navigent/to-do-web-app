@@ -10,7 +10,12 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(bash:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(DATABASE_URL=\"file:./dev.db\" npx prisma migrate dev --name init)",
+      "Bash(node:*)",
+      "Bash(npx tsx:*)",
+      "Bash(ls:*)",
+      "Bash(./scripts/push-github.sh:*)"
     ],
     "deny": []
   },

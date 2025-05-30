@@ -1,9 +1,9 @@
 # TaskFlow Development To-Do List
 
 **Last Updated:** May 30, 2025  
-**Total Progress:** 13/40 tasks completed (32.5%)
+**Total Progress:** 14/40 tasks completed (35%)
 
-## ✅ Completed Tasks (13/40)
+## ✅ Completed Tasks (14/40)
 
 1. ✅ Initialize Next.js 14+ project with TypeScript and App Router
 2. ✅ Set up development environment with ESLint, Prettier, and Husky
@@ -52,7 +52,7 @@ These are the critical tasks that should be completed next:
    - [ ] Connect frontend components to API endpoints
 
 ### 2. **Enhanced Features** 🚀
-   - [ ] Implement dark/light theme toggle
+   - [x] Implement dark/light theme toggle
    - [ ] Add keyboard navigation and shortcuts
    - [ ] Add task due dates and reminders
    - [ ] Create task tags/labels system
@@ -99,10 +99,10 @@ These are the critical tasks that should be completed next:
 
 | Priority | Completed | Pending | Total | Progress |
 |----------|-----------|---------|-------|----------|
-| High     | 10        | 10      | 20    | 50%      |
+| High     | 11        | 9       | 20    | 55%      |
 | Medium   | 0         | 13      | 13    | 0%       |
 | Low      | 3         | 10      | 13    | 23.1%    |
-| **Total**| **13**    | **33**  | **46**| **28.3%** |
+| **Total**| **14**    | **32**  | **46**| **30.4%** |
 
 ## 🚀 Recommended Work Order
 
