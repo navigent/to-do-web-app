@@ -13,6 +13,7 @@ import { TaskList } from './task-list'
 import { TaskFilter } from './task-filter'
 import { AddTaskButton } from './add-task-button'
 import { TaskForm } from './task-form'
+import { TaskFormDialog } from './task-form-dialog'
 import { ErrorBoundary } from './error-boundary'
 import { TaskListSkeleton } from './ui/loading-skeleton'
 import { EmptyState } from './ui/empty-state'
@@ -63,29 +64,13 @@ const mockTasks: Task[] = [
 ]
 
 export function TaskManagerDemo() {
-  // Check URL params for demo mode
-  const isEmptyDemo = typeof window !== 'undefined' && 
-    window.location.search.includes('demo=empty')
-  const isCompletedDemo = typeof window !== 'undefined' && 
-    window.location.search.includes('demo=completed')
-  
-  // Create completed tasks for demo
-  const completedMockTasks = mockTasks.map(task => ({
-    ...task,
-    status: 'COMPLETED' as const,
-    completedAt: new Date(),
-  }))
-  
-  const initialTasks = isEmptyDemo ? [] : 
-                      isCompletedDemo ? completedMockTasks : 
-                      mockTasks
-  
-  const [tasks, setTasks] = useState<Task[]>(initialTasks)
+  const [tasks, setTasks] = useState<Task[]>(mockTasks)
   const [filters, setFilters] = useState<TaskFilters>({})
   const [editingTask, setEditingTask] = useState<Task | null>(null)
   const [loadingStates, setLoadingStates] = useState<Record<string, boolean>>({})
   const [isInitialLoading, setIsInitialLoading] = useState(false)
-  const [showAddTaskForm, setShowAddTaskForm] = useState(false)
+  const [showAddTaskDialog, setShowAddTaskDialog] = useState(false)
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([])
   const { toast } = useToast()
   const isFirstTime = useIsFirstTimeUser()
 
@@ -176,7 +161,7 @@ export function TaskManagerDemo() {
 
   // Handle add task from empty state
   const handleAddTaskFromEmpty = () => {
-    setShowAddTaskForm(true)
+    setShowAddTaskDialog(true)
   }
 
   const handleAddTask = async (data: CreateTaskData) => {
@@ -200,7 +185,7 @@ export function TaskManagerDemo() {
       }
       
       setTasks((prev) => [newTask, ...prev])
-      setShowAddTaskForm(false) // Close inline form
+      setShowAddTaskDialog(false)
       toast({
         title: 'Task created',
         description: `"${data.title}" has been added to your tasks.`,
@@ -311,6 +296,7 @@ export function TaskManagerDemo() {
       }
       
       setTasks((prev) => prev.filter((t) => t.id !== taskId))
+      setSelectedTaskIds((prev) => prev.filter((id) => id !== taskId))
       toast({
         title: 'Task deleted',
         description: `"${task.title}" has been removed from your tasks.`,
@@ -327,61 +313,84 @@ export function TaskManagerDemo() {
     }
   }
 
-  if (editingTask) {
-    return (
-      <ErrorBoundary>
-        <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-2xl">
-          <TaskForm
-            task={editingTask}
-            onSubmit={handleUpdateTask}
-            onCancel={() => setEditingTask(null)}
-          />
-        </div>
-      </ErrorBoundary>
-    )
+  const handleBulkDelete = async (taskIds: string[]) => {
+    try {
+      await simulateNetworkDelay(500)
+      
+      // Simulate potential error
+      if (Math.random() < 0.05) {
+        throw new Error('Failed to delete tasks. Please try again.')
+      }
+      
+      const deletedCount = taskIds.length
+      setTasks((prev) => prev.filter((t) => !taskIds.includes(t.id)))
+      setSelectedTaskIds([])
+      
+      toast({
+        title: 'Tasks deleted',
+        description: `${deletedCount} task${deletedCount > 1 ? 's' : ''} deleted successfully.`,
+        variant: 'destructive',
+      })
+    } catch (error) {
+      toast({
+        title: 'Error deleting tasks',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+      throw error
+    }
   }
+
+  const handleBulkStatusChange = async (taskIds: string[], status: TaskStatus) => {
+    try {
+      await simulateNetworkDelay(500)
+      
+      // Simulate potential error
+      if (Math.random() < 0.05) {
+        throw new Error('Failed to update tasks. Please try again.')
+      }
+      
+      const updatedCount = taskIds.length
+      setTasks((prev) =>
+        prev.map((task) =>
+          taskIds.includes(task.id)
+            ? {
+                ...task,
+                status,
+                updatedAt: new Date(),
+                completedAt: status === 'COMPLETED' ? new Date() : undefined,
+              }
+            : task
+        )
+      )
+      setSelectedTaskIds([])
+      
+      toast({
+        title: 'Tasks updated',
+        description: `${updatedCount} task${updatedCount > 1 ? 's' : ''} updated to ${status.toLowerCase()}.`,
+      })
+    } catch (error) {
+      toast({
+        title: 'Error updating tasks',
+        description: error instanceof Error ? error.message : 'Something went wrong',
+        variant: 'destructive',
+      })
+      throw error
+    }
+  }
+
 
   return (
     <ErrorBoundary>
       <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
-        {/* Demo Controls */}
-        {typeof window !== 'undefined' && (
-          <div className="mb-4 p-3 bg-muted/50 rounded-lg border text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">
-                Demo Mode: {isEmptyDemo ? 'Empty State Testing' : 
-                          isCompletedDemo ? 'All Tasks Completed' : 
-                          'With Sample Tasks'}
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => window.location.href = '?demo=normal'}
-                  className={`px-3 py-1 rounded text-xs ${!isEmptyDemo && !isCompletedDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                >
-                  Normal
-                </button>
-                <button
-                  onClick={() => window.location.href = '?demo=empty'}
-                  className={`px-3 py-1 rounded text-xs ${isEmptyDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                >
-                  Empty
-                </button>
-                <button
-                  onClick={() => window.location.href = '?demo=completed'}
-                  className={`px-3 py-1 rounded text-xs ${isCompletedDemo ? 'bg-primary text-primary-foreground' : 'bg-background'}`}
-                >
-                  Completed
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
           {/* Sidebar with filters and add button */}
           <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
             <ErrorBoundary>
-              <AddTaskButton onAddTask={handleAddTask} variant="card" />
+              <AddTaskButton 
+                onClick={() => setShowAddTaskDialog(true)} 
+                variant="card" 
+              />
             </ErrorBoundary>
             <ErrorBoundary>
               <TaskFilter filters={filters} onFiltersChange={setFilters} taskCounts={taskCounts} />
@@ -398,22 +407,17 @@ export function TaskManagerDemo() {
             </div>
 
             <ErrorBoundary>
-              {/* Inline Add Task Form */}
-              {showAddTaskForm && (
-                <div className="mb-6">
-                  <TaskForm
-                    onSubmit={handleAddTask}
-                    onCancel={() => setShowAddTaskForm(false)}
-                  />
-                </div>
-              )}
-
               <TaskList
                 tasks={filteredTasks}
                 onStatusChange={handleStatusChange}
                 onEdit={setEditingTask}
                 onDelete={handleDeleteTask}
                 loadingStates={loadingStates}
+                selectedTaskIds={selectedTaskIds}
+                onSelectionChange={setSelectedTaskIds}
+                showCheckboxes={tasks.length > 0}
+                onBulkDelete={handleBulkDelete}
+                onBulkStatusChange={handleBulkStatusChange}
                 emptyComponent={
                   emptyStateInfo && (
                     <EmptyState
@@ -433,6 +437,23 @@ export function TaskManagerDemo() {
           </div>
         </div>
       </div>
+
+      {/* Task Form Dialog */}
+      <TaskFormDialog
+        open={showAddTaskDialog}
+        onOpenChange={setShowAddTaskDialog}
+        onSubmit={handleAddTask}
+      />
+
+      {/* Edit Task Dialog */}
+      {editingTask && (
+        <TaskFormDialog
+          open={!!editingTask}
+          onOpenChange={(open) => !open && setEditingTask(null)}
+          task={editingTask}
+          onSubmit={handleUpdateTask}
+        />
+      )}
     </ErrorBoundary>
   )
 }

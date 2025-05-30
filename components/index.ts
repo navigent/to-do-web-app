@@ -2,6 +2,7 @@
 export { TaskCard } from './task-card'
 export { TaskList } from './task-list'
 export { TaskForm } from './task-form'
+export { TaskFormDialog } from './task-form-dialog'
 export { TaskFilter } from './task-filter'
 export { AddTaskButton } from './add-task-button'
 
