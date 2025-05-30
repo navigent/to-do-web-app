@@ -1,72 +1,55 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
-import { createTaskSchema } from '@/lib/validations/task'
+import { createTaskSchema, taskQuerySchema } from '@/lib/validations/task'
 import { withErrorHandler, ApiError } from '@/lib/api-errors'
+import { withSecurity, validateRequestBody } from '@/lib/security-middleware'
 
-export const GET = withErrorHandler(async (request: NextRequest) => {
+export const GET = withSecurity({
+  enableRateLimit: true,
+  maxRequestsPerMinute: 100,
+  maxRequestSize: 1024 * 10, // 10KB
+})(withErrorHandler(async (request: NextRequest) => {
+  // Validate and sanitize query parameters
   const searchParams = request.nextUrl.searchParams
-  const search = searchParams.get('search')
-  const priority = searchParams.get('priority')
-  const status = searchParams.get('status')
-  const sortBy = searchParams.get('sortBy') || 'createdAt'
-  const sortOrder = searchParams.get('sortOrder') || 'desc'
-  const page = parseInt(searchParams.get('page') || '1')
-  const limit = parseInt(searchParams.get('limit') || '10')
-
-  // Validate pagination parameters
-  if (page < 1 || limit < 1 || limit > 100) {
-    throw new ApiError(400, 'Invalid pagination parameters')
+  const queryParams = {
+    search: searchParams.get('search') || undefined,
+    priority: searchParams.get('priority') || undefined,
+    status: searchParams.get('status') || undefined,
+    sortBy: searchParams.get('sortBy') || 'createdAt',
+    sortOrder: searchParams.get('sortOrder') || 'desc',
+    page: searchParams.get('page') || '1',
+    limit: searchParams.get('limit') || '10',
   }
 
-  // Validate sort parameters
-  const validSortFields = ['createdAt', 'updatedAt', 'priority', 'status', 'title']
-  const validSortOrders = ['asc', 'desc']
-  
-  if (!validSortFields.includes(sortBy)) {
-    throw new ApiError(400, `Invalid sort field. Must be one of: ${validSortFields.join(', ')}`)
-  }
-  
-  if (!validSortOrders.includes(sortOrder)) {
-    throw new ApiError(400, 'Invalid sort order. Must be asc or desc')
-  }
+  // Validate and sanitize query parameters
+  const validatedQuery = taskQuerySchema.parse(queryParams)
 
-  // Validate priority and status if provided
-  const validPriorities = ['LOW', 'MEDIUM', 'HIGH']
-  const validStatuses = ['PENDING', 'IN_PROGRESS', 'COMPLETED']
-  
-  if (priority && !validPriorities.includes(priority)) {
-    throw new ApiError(400, `Invalid priority. Must be one of: ${validPriorities.join(', ')}`)
-  }
-  
-  if (status && !validStatuses.includes(status)) {
-    throw new ApiError(400, `Invalid status. Must be one of: ${validStatuses.join(', ')}`)
-  }
-
+  // Build where clause from validated parameters
   const where: any = {}
 
-  if (search) {
+  if (validatedQuery.search) {
     where.OR = [
-      { title: { contains: search } },
-      { description: { contains: search } },
+      { title: { contains: validatedQuery.search } },
+      { description: { contains: validatedQuery.search } },
     ]
   }
 
-  if (priority) {
-    where.priority = priority
+  if (validatedQuery.priority) {
+    where.priority = validatedQuery.priority
   }
 
-  if (status) {
-    where.status = status
+  if (validatedQuery.status) {
+    where.status = validatedQuery.status
   }
 
   const [tasks, total] = await Promise.all([
     prisma.task.findMany({
       where,
       orderBy: {
-        [sortBy]: sortOrder,
+        [validatedQuery.sortBy]: validatedQuery.sortOrder,
       },
-      skip: (page - 1) * limit,
-      take: limit,
+      skip: (validatedQuery.page - 1) * validatedQuery.limit,
+      take: validatedQuery.limit,
     }),
     prisma.task.count({ where }),
   ])
@@ -74,18 +57,29 @@ export const GET = withErrorHandler(async (request: NextRequest) => {
   return NextResponse.json({
     tasks,
     pagination: {
-      page,
-      limit,
+      page: validatedQuery.page,
+      limit: validatedQuery.limit,
       total,
-      totalPages: Math.ceil(total / limit),
+      totalPages: Math.ceil(total / validatedQuery.limit),
     },
   })
-})
+}))
 
-export const POST = withErrorHandler(async (request: NextRequest) => {
+export const POST = withSecurity({
+  enableRateLimit: true,
+  maxRequestsPerMinute: 30,
+  maxRequestSize: 1024 * 5, // 5KB
+  enableCSRF: true,
+})(withErrorHandler(async (request: NextRequest) => {
   const body = await request.json()
   
-  // Validate request body
+  // Validate request body structure
+  const bodyValidation = validateRequestBody(body)
+  if (!bodyValidation.valid) {
+    throw new ApiError(400, bodyValidation.error || 'Invalid request body')
+  }
+  
+  // Validate and sanitize request data
   const validatedData = createTaskSchema.parse(body)
 
   // Create the task
@@ -94,4 +88,4 @@ export const POST = withErrorHandler(async (request: NextRequest) => {
   })
 
   return NextResponse.json(task, { status: 201 })
-})
+}))
