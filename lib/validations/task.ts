@@ -19,7 +19,7 @@ export const updateTaskSchema = z.object({
 })
 
 export const taskIdSchema = z.object({
-  id: z.string().cuid(),
+  id: z.string().cuid({ message: 'Invalid task ID format' }),
 })
 
 export type CreateTaskInput = z.infer<typeof createTaskSchema>

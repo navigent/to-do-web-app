@@ -23,7 +23,8 @@ async function testAPI() {
     // Test 2: Get all tasks
     console.log('2. Fetching all tasks...');
     const getAllResponse = await fetch(API_URL);
-    const allTasks = await getAllResponse.json();
+    const allTasksData = await getAllResponse.json();
+    const allTasks = allTasksData.tasks || allTasksData;
     console.log(`Found ${allTasks.length} tasks`);
     console.log('');
 
@@ -51,7 +52,8 @@ async function testAPI() {
     // Test 5: Search tasks
     console.log('5. Searching tasks...');
     const searchResponse = await fetch(`${API_URL}?search=Updated`);
-    const searchResults = await searchResponse.json();
+    const searchData = await searchResponse.json();
+    const searchResults = searchData.tasks || searchData;
     console.log(`Search found ${searchResults.length} tasks`);
     console.log('');
 
