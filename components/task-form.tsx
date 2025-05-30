@@ -27,9 +27,11 @@ interface TaskFormProps {
 export function TaskForm({ task, onSubmit, onCancel, isLoading: externalLoading }: TaskFormProps) {
   const [title, setTitle] = useState(task?.title || '')
   const [description, setDescription] = useState(task?.description || '')
-  const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'MEDIUM')
+  const [priority, setPriority] = useState<TaskPriority>(task?.priority || 'LOW')
   const [dueDate, setDueDate] = useState(
-    task?.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : '',
+    task?.dueDate 
+      ? new Date(task.dueDate).toISOString().split('T')[0] 
+      : new Date().toISOString().split('T')[0]
   )
 
   const { loading: asyncLoading, execute } = useAsync(onSubmit)
@@ -62,7 +64,7 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading: externalLoading 
   }
 
   return (
-    <Card className="w-full max-w-full sm:max-w-md">
+    <Card className="w-full">
       <CardHeader className="pb-3 sm:pb-4">
         <div className="flex items-center justify-between">
           <CardTitle className="text-base sm:text-lg">{isEditing ? 'Edit Task' : 'Create New Task'}</CardTitle>
@@ -113,27 +115,27 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading: externalLoading 
                 <SelectValue placeholder="Select priority" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="low">
+                <SelectItem value="LOW">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                    <span className="text-xs leading-none">🟢</span>
                     Low
                   </div>
                 </SelectItem>
-                <SelectItem value="medium">
+                <SelectItem value="MEDIUM">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <span className="text-xs leading-none">🟡</span>
                     Medium
                   </div>
                 </SelectItem>
-                <SelectItem value="high">
+                <SelectItem value="HIGH">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                    <span className="text-xs leading-none">🟠</span>
                     High
                   </div>
                 </SelectItem>
-                <SelectItem value="urgent">
+                <SelectItem value="URGENT">
                   <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span className="text-xs leading-none">🔴</span>
                     Urgent
                   </div>
                 </SelectItem>
