@@ -15,7 +15,8 @@
       "Bash(node:*)",
       "Bash(npx tsx:*)",
       "Bash(ls:*)",
-      "Bash(./scripts/push-github.sh:*)"
+      "Bash(./scripts/push-github.sh:*)",
+      "Bash(curl:*)"
     ],
     "deny": []
   },
