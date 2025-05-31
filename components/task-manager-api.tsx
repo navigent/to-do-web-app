@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { TaskStatus } from "@/types/task";
-import { TaskFilters } from "@/types";
+import { Task, TaskStatus } from "@/types/task";
 import { TaskList } from "./task-list";
-import { TaskForm } from "./task-form";
 import { TaskFilter } from "./task-filter";
 import { AddTaskButton } from "./add-task-button";
-import { Card } from "./ui/card";
-import { useEmptyState } from "@/hooks/use-empty-state";
-import { EmptyStateWrapper } from "./ui/empty-state";
+import { TaskFormDialog } from "./task-form-dialog";
+import { useEmptyState, useIsFirstTimeUser } from "@/hooks/use-empty-state";
+import { EmptyState } from "./ui/empty-state";
 import { withErrorBoundary } from "./error-boundary";
 import { Spinner } from "./ui/spinner";
 import {
@@ -21,7 +19,7 @@ import {
   useBulkUpdateTasks,
   useBulkDeleteTasks,
 } from "@/hooks/use-tasks";
-import type { CreateTaskData, UpdateTaskData } from "@/lib/api-client";
+import type { CreateTaskData, UpdateTaskData, TaskFilters } from "@/lib/api-client";
 
 function TaskManagerApiContent() {
   const [isAddingTask, setIsAddingTask] = useState(false);
@@ -43,6 +41,7 @@ function TaskManagerApiContent() {
   const updateStatusMutation = useUpdateTaskStatus();
   const bulkUpdateMutation = useBulkUpdateTasks();
   const bulkDeleteMutation = useBulkDeleteTasks();
+  const isFirstTime = useIsFirstTimeUser();
 
   // Extract tasks and pagination from response
   const tasks = tasksResponse?.tasks || [];
@@ -53,17 +52,18 @@ function TaskManagerApiContent() {
     return {
       total: pagination?.total || 0,
       pending: tasks.filter(t => t.status === 'PENDING').length,
-      inProgress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
+      in_progress: tasks.filter(t => t.status === 'IN_PROGRESS').length,
       completed: tasks.filter(t => t.status === 'COMPLETED').length,
       cancelled: tasks.filter(t => t.status === 'CANCELLED').length,
     };
   }, [tasks, pagination]);
 
   // Empty state configuration
-  const emptyStateConfig = useEmptyState({
+  const emptyStateInfo = useEmptyState({
     tasks,
     filteredTasks: tasks, // Tasks are already filtered by API
     filters,
+    isFirstTime,
   });
 
   // Loading states for individual tasks
@@ -124,11 +124,11 @@ function TaskManagerApiContent() {
     }
   };
 
-  const handleBulkDelete = async () => {
-    if (selectedTaskIds.length === 0) return;
+  const handleBulkDelete = async (taskIds: string[]) => {
+    if (taskIds.length === 0) return;
 
     try {
-      await bulkDeleteMutation.mutateAsync(selectedTaskIds);
+      await bulkDeleteMutation.mutateAsync(taskIds);
       setSelectedTaskIds([]);
     } catch (error) {
       // Error is handled by the mutation hook
@@ -136,12 +136,12 @@ function TaskManagerApiContent() {
     }
   };
 
-  const handleBulkStatusChange = async (status: TaskStatus) => {
-    if (selectedTaskIds.length === 0) return;
+  const handleBulkStatusChange = async (taskIds: string[], status: TaskStatus) => {
+    if (taskIds.length === 0) return;
 
     try {
       await bulkUpdateMutation.mutateAsync({
-        ids: selectedTaskIds,
+        ids: taskIds,
         data: { status },
       });
       setSelectedTaskIds([]);
@@ -151,13 +151,19 @@ function TaskManagerApiContent() {
     }
   };
 
-  const handleFiltersChange = (newFilters: TaskFilters) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      // Reset page when filters change (except for page changes)
+  const handleFiltersChange = (newFilters: any) => {
+    // Convert from TaskFilter component format to API format
+    const apiFilters: TaskFilters = {
+      search: newFilters.search,
+      sortBy: newFilters.sortBy,
+      sortOrder: newFilters.sortOrder,
+      // Convert arrays to single values (take first item)
+      status: Array.isArray(newFilters.status) ? newFilters.status[0] : newFilters.status,
+      priority: Array.isArray(newFilters.priority) ? newFilters.priority[0] : newFilters.priority,
       page: newFilters.page !== undefined ? newFilters.page : 1,
-    }));
+      limit: filters.limit,
+    };
+    setFilters(apiFilters);
   };
 
   const handleEditTask = (task: any) => {
@@ -194,111 +200,91 @@ function TaskManagerApiContent() {
 
   return (
     <div className="container mx-auto p-3 sm:p-4 md:p-6 max-w-full sm:max-w-6xl">
-      <div className="space-y-4 sm:space-y-6">
-        {/* Header with Add Task Button */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-          <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">My Tasks</h2>
-            <p className="text-sm sm:text-base text-muted-foreground mt-1">
-              Manage and track your daily tasks
-              {pagination && ` (${pagination.total} total)`}
-            </p>
-          </div>
-          <AddTaskButton
-            onClick={() => setIsAddingTask(true)}
+      <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6">
+        {/* Sidebar with filters and add button */}
+        <div className="w-full md:w-80 lg:w-96 space-y-3 sm:space-y-4">
+          <AddTaskButton 
+            onClick={() => setIsAddingTask(true)} 
+            variant="card" 
             disabled={
               isAddingTask || 
               editingTask !== null || 
               createTaskMutation.isPending
             }
           />
+          <TaskFilter 
+            filters={{
+              search: filters.search,
+              status: filters.status ? [filters.status] : [],
+              priority: filters.priority ? [filters.priority] : [],
+              sortBy: filters.sortBy as any,
+              sortOrder: filters.sortOrder,
+            }} 
+            onFiltersChange={handleFiltersChange} 
+            taskCounts={taskCounts} 
+          />
         </div>
 
-        {/* Filters */}
-        <TaskFilter
-          filters={filters}
-          onFiltersChange={handleFiltersChange}
-          taskCounts={taskCounts}
-        />
-
-        {/* Main Content Area */}
-        <div className="grid gap-4 sm:gap-6 md:grid-cols-[1fr,400px]">
-          {/* Task List */}
-          <Card className="p-3 sm:p-4 md:p-6">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Spinner size="lg" />
-                <span className="ml-2 text-muted-foreground">Loading tasks...</span>
-              </div>
-            ) : (
-              <EmptyStateWrapper config={emptyStateConfig}>
-                {/* <TaskList
-                  tasks={tasks}
-                  onStatusChange={handleStatusChange}
-                  onEdit={handleEditTask}
-                  onDelete={handleDeleteTask}
-                  selectedTaskIds={selectedTaskIds}
-                  onSelectionChange={setSelectedTaskIds}
-                  loadingStates={loadingStates}
-                  showCheckboxes={tasks.length > 0}
-                  onBulkDelete={handleBulkDelete}
-                  onBulkStatusChange={handleBulkStatusChange}
-                  pagination={pagination}
-                  onPageChange={(page) => handleFiltersChange({ ...filters, page })}
-                  isLoading={{
-                    bulkDelete: bulkDeleteMutation.isPending,
-                    bulkUpdate: bulkUpdateMutation.isPending,
-                  }}
-                /> */}
-              </EmptyStateWrapper>
-            )}
-          </Card>
-
-          {/* Add/Edit Task Form */}
-          {(isAddingTask || editingTask) && (
-            <div className="md:sticky md:top-4 h-fit">
-              <Card className="p-3 sm:p-4 md:p-6">
-                <TaskForm
-                  task={editingTask?.data}
-                  onSubmit={editingTask ? handleUpdateTask : handleAddTask}
-                  onCancel={() => {
-                    setIsAddingTask(false);
-                    setEditingTask(null);
-                  }}
-                  isLoading={
-                    editingTask 
-                      ? updateTaskMutation.isPending
-                      : createTaskMutation.isPending
-                  }
-                />
-              </Card>
+        {/* Main content area */}
+        <div className="flex-1">
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <Spinner size="lg" />
+              <span className="ml-2 text-muted-foreground">Loading tasks...</span>
             </div>
+          ) : (
+            <TaskList
+              tasks={tasks}
+              onStatusChange={handleStatusChange}
+              onEdit={handleEditTask}
+              onDelete={handleDeleteTask}
+              selectedTaskIds={selectedTaskIds}
+              onSelectionChange={setSelectedTaskIds}
+              loadingStates={loadingStates}
+              showCheckboxes={tasks.length > 0}
+              onBulkDelete={handleBulkDelete}
+              onBulkStatusChange={handleBulkStatusChange}
+              emptyComponent={
+                emptyStateInfo && (
+                  <EmptyState
+                    variant={emptyStateInfo.variant}
+                    title={emptyStateInfo.title}
+                    description={emptyStateInfo.description}
+                    onAddTask={() => setIsAddingTask(true)}
+                    onClearFilters={() => setFilters({})}
+                    filters={filters}
+                    searchTerm={emptyStateInfo.searchTerm}
+                    totalTasks={tasks.length}
+                  />
+                )
+              }
+            />
           )}
         </div>
-
-        {/* Pagination (if needed) */}
-        {pagination && pagination.totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-6">
-            <button
-              onClick={() => handleFiltersChange({ ...filters, page: Math.max(1, filters.page! - 1) })}
-              disabled={filters.page === 1}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="px-3 py-1">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-            <button
-              onClick={() => handleFiltersChange({ ...filters, page: Math.min(pagination.totalPages, filters.page! + 1) })}
-              disabled={filters.page === pagination.totalPages}
-              className="px-3 py-1 border rounded disabled:opacity-50"
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
+
+      {/* Add/Edit Task Form Dialog */}
+      {(isAddingTask || editingTask) && (
+        <TaskFormDialog
+          open={isAddingTask || !!editingTask}
+          onOpenChange={(open) => {
+            if (!open) {
+              setIsAddingTask(false);
+              setEditingTask(null);
+            }
+          }}
+          task={editingTask ? {
+            id: editingTask.id,
+            title: editingTask.data.title || '',
+            description: editingTask.data.description,
+            status: editingTask.data.status || 'PENDING',
+            priority: editingTask.data.priority || 'MEDIUM',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          } as Task : undefined}
+          onSubmit={editingTask ? handleUpdateTask : handleAddTask}
+        />
+      )}
     </div>
   );
 }

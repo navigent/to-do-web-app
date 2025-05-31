@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './assets/globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from '@/lib/theme-provider'
+import { ReactQueryProvider } from '@/lib/react-query'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -21,8 +22,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster />
+          <ReactQueryProvider>
+            {children}
+            <Toaster />
+          </ReactQueryProvider>
         </ThemeProvider>
       </body>
     </html>

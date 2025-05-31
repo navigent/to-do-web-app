@@ -22,15 +22,6 @@ export function useTasks(filters: TaskFilters = {}) {
   })
 }
 
-// Hook for fetching a single task
-export function useTask(id: string) {
-  return useQuery({
-    queryKey: taskKeys.detail(id),
-    queryFn: () => taskApi.get(id),
-    enabled: !!id,
-    staleTime: 5 * 60 * 1000,
-  })
-}
 
 // Hook for creating a task
 export function useCreateTask() {

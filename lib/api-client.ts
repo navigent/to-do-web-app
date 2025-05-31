@@ -95,9 +95,6 @@ class ApiClient {
     return this.request<TasksResponse>(endpoint)
   }
 
-  async getTask(id: string): Promise<Task> {
-    return this.request<Task>(`/tasks/${id}`)
-  }
 
   async createTask(data: CreateTaskData): Promise<Task> {
     return this.request<Task>('/tasks', {
@@ -155,7 +152,6 @@ export const apiClient = new ApiClient()
 export const taskApi = {
   // CRUD operations
   list: (filters?: TaskFilters) => apiClient.getTasks(filters),
-  get: (id: string) => apiClient.getTask(id),
   create: (data: CreateTaskData) => apiClient.createTask(data),
   update: (id: string, data: UpdateTaskData) => apiClient.updateTask(id, data),
   delete: (id: string) => apiClient.deleteTask(id),

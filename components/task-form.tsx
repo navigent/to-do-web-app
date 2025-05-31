@@ -34,7 +34,13 @@ export function TaskForm({ task, onSubmit, onCancel, isLoading: externalLoading 
       : new Date().toISOString().split('T')[0]
   )
 
-  const { loading: asyncLoading, execute } = useAsync(onSubmit)
+  const { loading: asyncLoading, execute } = useAsync(async (data: any) => {
+    const result = onSubmit(data)
+    if (result instanceof Promise) {
+      return result
+    }
+    return Promise.resolve()
+  })
   const isLoading = externalLoading || asyncLoading
   const isEditing = !!task
   const isValid = title.trim().length > 0

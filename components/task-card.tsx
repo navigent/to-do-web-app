@@ -305,7 +305,7 @@ export function TaskCard({
         open={showDeleteConfirmation}
         onOpenChange={setShowDeleteConfirmation}
         taskTitle={task.title}
-        taskDescription={task.description}
+        taskDescription={task.description || undefined}
         onConfirm={handleDeleteConfirm}
         isLoading={isDeleting}
       />
