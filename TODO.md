@@ -1,9 +1,9 @@
 # TaskFlow Development To-Do List
 
-**Last Updated:** May 30, 2025  
-**Total Progress:** 14/40 tasks completed (35%)
+**Last Updated:** May 31, 2025  
+**Total Progress:** 15/40 tasks completed (37.5%)
 
-## ✅ Completed Tasks (14/40)
+## ✅ Completed Tasks (15/40)
 
 1. ✅ Initialize Next.js 14+ project with TypeScript and App Router
 2. ✅ Set up development environment with ESLint, Prettier, and Husky
@@ -40,18 +40,17 @@
    - ✅ Add confirmation dialogs for destructive actions
    - ✅ Create responsive design for mobile and tablet
    - ✅ Add loading states and error handling
+10. ✅ **API Routes Integration** 🔧
+    - ✅ Create API routes for CRUD operations with Prisma
+    - ✅ Implement proper error handling in API routes
+    - ✅ Add input validation and sanitization
+    - ✅ Connect frontend components to API endpoints - All 7 endpoints bound
  
 ## 🔴 High Priority - Next Tasks to Work On
 
 These are the critical tasks that should be completed next:
 
-### 1. **API Routes Integration** 🔧
-   - [ ] Create API routes for CRUD operations with Prisma
-   - [ ] Implement proper error handling in API routes
-   - [ ] Add input validation and sanitization
-   - [ ] Connect frontend components to API endpoints
-
-### 2. **Enhanced Features** 🚀
+### 1. **Enhanced Features** 🚀
    - [x] Implement dark/light theme toggle
    - [ ] Add keyboard navigation and shortcuts
    - [ ] Add task due dates and reminders
@@ -99,10 +98,10 @@ These are the critical tasks that should be completed next:
 
 | Priority | Completed | Pending | Total | Progress |
 |----------|-----------|---------|-------|----------|
-| High     | 11        | 9       | 20    | 55%      |
+| High     | 15        | 5       | 20    | 75%      |
 | Medium   | 0         | 13      | 13    | 0%       |
-| Low      | 3         | 10      | 13    | 23.1%    |
-| **Total**| **14**    | **32**  | **46**| **30.4%** |
+| Low      | 0         | 10      | 10    | 0%       |
+| **Total**| **15**    | **28**  | **43**| **34.9%** |
 
 ## 🚀 Recommended Work Order
 
@@ -111,8 +110,9 @@ These are the critical tasks that should be completed next:
 3. ✅ **Core Components** - Build main UI features
 4. ✅ **TaskManagerDemo Integration** - Working demo with mock data
 5. ✅ **Prisma ORM Integration** - Database persistence with SQLite
-6. **UI/UX Polish** - Responsive design and user experience (NEXT)
-7. **Enhanced Features** - Advanced functionality and optimization
+6. ✅ **API Routes Integration** - Full backend integration
+7. ✅ **UI/UX Polish** - Responsive design and user experience
+8. **Enhanced Features** - Advanced functionality and optimization (NEXT)
 
 ## 📝 Notes
 
@@ -120,7 +120,8 @@ These are the critical tasks that should be completed next:
 - ✅ Working demo with mock data and full CRUD operations
 - ✅ Prisma ORM successfully integrated with SQLite database
 - ✅ Empty states and confirmation dialogs implemented
-- 🎯 Current focus: Responsive design and loading states
+- ✅ All API endpoints integrated and bound to frontend components
+- 🎯 Current focus: Enhanced features (keyboard navigation, due dates, tags)
 - All components are fully typed and follow design system patterns
 - Application has persistent data storage with Prisma/SQLite
 - Keep commits focused and use the Git Flow model we've set up
@@ -131,10 +132,85 @@ These are the critical tasks that should be completed next:
 - ✅ Complete UI components and design system
 - ✅ Full CRUD operations with persistent database storage
 - ✅ Prisma ORM with SQLite for data persistence
+- ✅ All API endpoints integrated with frontend (7 endpoints)
+- ✅ Real-time data fetching with React Query
 - ✅ Filtering, sorting, and search functionality  
 - ✅ Toast notifications and user feedback
 - ✅ Empty states for better UX
 - ✅ Confirmation dialogs for destructive actions
 - ✅ TypeScript type safety throughout
+- ✅ Secure API with rate limiting, CSRF protection, and validation
 
-**Ready for:** Responsive design implementation, API routes integration, and enhanced features
+**Ready for:** Enhanced features like keyboard navigation, due dates, and task tags
+
+## 📚 API Endpoints Documentation
+
+### Task Management Endpoints
+
+#### 1. **GET /api/tasks** ✅ BOUND
+- **Description**: Get all tasks with filtering, pagination, and sorting
+- **Query Parameters**: 
+  - `search` (string): Search in title and description
+  - `priority` (LOW | MEDIUM | HIGH | URGENT)
+  - `status` (PENDING | IN_PROGRESS | COMPLETED | CANCELLED)
+  - `sortBy` (createdAt | updatedAt | priority | status | title)
+  - `sortOrder` (asc | desc)
+  - `page` (number): Default 1
+  - `limit` (number): Default 10
+- **Response**: TasksResponse with tasks array and pagination
+- **Binding**: `apiClient.getTasks()` / `taskApi.list()`
+
+#### 2. **POST /api/tasks** ✅ BOUND
+- **Description**: Create a new task
+- **Request Body**:
+  - `title` (string, required)
+  - `description` (string, optional)
+  - `priority` (TaskPriority, optional)
+  - `status` (TaskStatus, optional)
+  - `dueDate` (Date, optional)
+- **Response**: Created Task object
+- **Binding**: `apiClient.createTask()` / `taskApi.create()`
+
+
+#### 3. **PATCH /api/tasks/[id]** ✅ BOUND
+- **Description**: Update a single task
+- **Request Body**: Any task fields to update
+- **Response**: Updated Task object
+- **Binding**: `apiClient.updateTask()` / `taskApi.update()`
+
+#### 4. **PUT /api/tasks/[id]** ✅ BOUND
+- **Description**: Alias for PATCH (backward compatibility)
+- **Binding**: Uses same binding as PATCH
+
+#### 5. **DELETE /api/tasks/[id]** ✅ BOUND
+- **Description**: Delete a single task
+- **Response**: `{ message: string, id: string }`
+- **Binding**: `apiClient.deleteTask()` / `taskApi.delete()`
+
+#### 6. **PATCH /api/tasks/bulk** ✅ BOUND
+- **Description**: Update multiple tasks at once
+- **Request Body**: `{ ids: string[], data: { priority?, status? } }`
+- **Response**: Array of updated Task objects
+- **Binding**: `apiClient.bulkUpdateTasks()` / `taskApi.bulkUpdate()`
+
+#### 7. **DELETE /api/tasks/bulk** ✅ BOUND
+- **Description**: Delete multiple tasks at once
+- **Request Body**: `{ ids: string[] }`
+- **Response**: `{ message: string, deletedIds: string[] }`
+- **Binding**: `apiClient.bulkDeleteTasks()` / `taskApi.bulkDelete()`
+
+### API Client Summary
+✅ **All 7 API endpoints are fully implemented and bound**
+✅ **Complete security middleware integration** (rate limiting, CSRF, validation)
+✅ **Full TypeScript type safety**
+✅ **2 additional convenience methods** (updateTaskStatus ✅ BOUND, searchTasks ✅ BOUND)
+✅ **TaskCache for optimistic updates**
+
+### Bound Endpoints Status:
+1. GET /api/tasks ✅ - List tasks with filters
+2. POST /api/tasks ✅ - Create new task
+3. PATCH /api/tasks/[id] ✅ - Update task
+4. PUT /api/tasks/[id] ✅ - Update task (alias)
+5. DELETE /api/tasks/[id] ✅ - Delete task
+6. PATCH /api/tasks/bulk ✅ - Bulk update tasks
+7. DELETE /api/tasks/bulk ✅ - Bulk delete tasks

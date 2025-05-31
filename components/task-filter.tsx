@@ -227,7 +227,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
             <div className="space-y-2.5">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Status</label>
-                {filters.status?.length > 0 && (
+                {filters.status && filters.status.length > 0 && (
                   <Badge variant="secondary" className="text-xs px-1.5 py-0">
                     {filters.status.length}
                   </Badge>
@@ -257,7 +257,7 @@ export function TaskFilter({ filters, onFiltersChange, taskCounts }: TaskFilterP
             <div className="space-y-2.5">
               <div className="flex items-center gap-2">
                 <label className="text-sm font-medium">Priority</label>
-                {filters.priority?.length > 0 && (
+                {filters.priority && filters.priority.length > 0 && (
                   <Badge variant="secondary" className="text-xs px-1.5 py-0">
                     {filters.priority.length}
                   </Badge>

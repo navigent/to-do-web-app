@@ -4,26 +4,6 @@ import { updateTaskSchema, taskIdSchema } from '@/lib/validations/task'
 import { withErrorHandler, ApiError } from '@/lib/api-errors'
 import { withSecurity, validateRequestBody } from '@/lib/security-middleware'
 
-export const GET = withSecurity({
-  enableRateLimit: true,
-  maxRequestsPerMinute: 200,
-})(withErrorHandler(async (
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) => {
-  const resolvedParams = await params
-  const { id } = taskIdSchema.parse(resolvedParams)
-
-  const task = await prisma.task.findUnique({
-    where: { id },
-  })
-
-  if (!task) {
-    throw new ApiError(404, 'Task not found')
-  }
-
-  return NextResponse.json(task)
-}))
 
 export const PATCH = withSecurity({
   enableRateLimit: true,

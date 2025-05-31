@@ -1,4 +1,4 @@
-import { TaskManagerDemo } from '@/components/task-manager-demo'
+import { TaskManagerApi } from '@/components/task-manager-api'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 
@@ -42,7 +42,7 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="py-3 sm:py-6">
-        <TaskManagerDemo />
+        <TaskManagerApi />
       </div>
 
       {/* Footer */}
